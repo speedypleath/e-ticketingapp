@@ -1,20 +1,18 @@
 package event;
 
+import artist.Artist;
+import user.Organiser;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 //import transaction.Ticket;
-import user.Client;
-import user.Organiser;
-import artist.Artist;
-
-// dupa ce am pierdut aproximativ 4 ore sa ma documentez cum se face un builder am descoperit ca exista deja un model in lab 5 of
 
 public abstract class Event
 {
     private Date date;
-    private List<Artist> artists;
+    private final List<Artist> artists;
     private final Organiser organiser;
     private String name;
     private String description;
@@ -45,6 +43,8 @@ public abstract class Event
 
     public void addArtist(Artist artist) { artists.add(artist); }
 
+    public void removeArtist(Artist artist) {artists.remove(artist); }
+
     public List<Artist> getArtists() { return artists; }
 
     public Organiser getOrganiser() { return organiser; }
@@ -60,17 +60,14 @@ public abstract class Event
                 '}';
     }
 
-    abstract Event copyEvent(Event event);
-
     Event(Event event)
     {
-        Organiser organiser = new Organiser(event.organiser.getUsername());
-        this.organiser = organiser;
+        this.organiser = new Organiser(event.organiser);
         this.date = new Date(event.getDate().getTime());
         this.name = event.name;
         this.description = event.description;
         this.artists = new ArrayList<>();
-        for(var artist : artists)
+        for(var artist : event.artists)
             this.artists.add(new Artist(artist));
     }
 

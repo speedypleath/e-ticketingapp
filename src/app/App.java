@@ -1,26 +1,33 @@
 package app;
 
-import event.ActualEvent;
-import location.Location;
-import user.*;
+import GUI.GUI;
 
 public class App
 {
-    User user;
-    void createEvent(Organiser organiser)
-    {
-
-    }
-
     public static void main(String[] args) {
-        Organiser organiser = new Organiser("speed");
-        Location location = new Location();
-        ActualEvent event = new ActualEvent.Builder()
-                .name("test")
-                .organiser(organiser)
-                .location(location)
-                .description("lalala")
-                .build();
-        System.out.println(event.toString());
+        GUI gui = new GUI();
+        /*Audit audit = Audit.getInstance();
+        Scanner scanner = new Scanner(System.in);
+        MainService service = MainService.getInstance();
+        while (true)
+        {
+            System.out.println("1. Add artist");
+            System.out.println("2. Add location");
+            System.out.println("3. Exit");
+            String option = scanner.next();
+            switch (option) {
+                case "1":
+                    service.addArtist();
+                    break;
+                case "2":
+                    DataService.readLocation();
+                    break;
+                case "3":
+                    service.saveData();
+                    System.exit(0);
+                default:
+                    System.out.println("Try again");
+            }
+        }*/
     }
 }

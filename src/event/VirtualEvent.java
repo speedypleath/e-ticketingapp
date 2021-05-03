@@ -12,7 +12,7 @@ public class VirtualEvent extends Event
         this.inviteLink = inviteLink;
     }
 
-    VirtualEvent(VirtualEvent event) {
+    public VirtualEvent(VirtualEvent event) {
         super(event);
         this.inviteLink = event.inviteLink;
     }
@@ -29,12 +29,6 @@ public class VirtualEvent extends Event
                 ", inviteLink='" + inviteLink + '\'' +
                 '}';
     }
-
-    @Override
-    VirtualEvent copyEvent(Event event) {
-        return new VirtualEvent((VirtualEvent) event);
-    }
-
 
     public static class Builder extends Event.Builder<Builder> {
         String inviteLink;

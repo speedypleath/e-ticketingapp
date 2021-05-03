@@ -1,7 +1,7 @@
 package transaction;
 
-import transaction.Ticket;
 import user.Client;
+import user.User;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,7 +9,6 @@ import java.util.List;
 
 public final class Payment
 {
-    // oare a meritat efortul pe care l-am depus ca sa fac clasa asta imutabila?
     final private Invoice invoice;
     final private Boolean refundable;
     final private List<Ticket> tickets;
@@ -23,5 +22,21 @@ public final class Payment
         for(var ticket : tickets)
             this.tickets.add(new Ticket(ticket));
         this.client = new Client(client);
+    }
+
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public Boolean getRefundable() {
+        return refundable;
+    }
+
+    public List<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public User getClient() {
+        return client;
     }
 }

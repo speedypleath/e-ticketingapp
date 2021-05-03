@@ -4,7 +4,7 @@ import event.ActualEvent;
 import event.Event;
 import event.VirtualEvent;
 import user.Client;
-import user.Organiser;
+import user.User;
 
 public class Ticket
 {
@@ -13,19 +13,8 @@ public class Ticket
     private int price;
     private String additionalInfo;
 
-    public Ticket(Ticket ticket) {
-    }
-    /*
-    Ticket(Client client, Event event)
-    {
-        this.client = client;
-        this.event = event.
-    }
-
     public Ticket(Ticket ticket)
     {
-        ActualEvent test = new ActualEvent((ActualEvent) event);
-        test.
         this.price = ticket.price;
         if(ticket.event instanceof VirtualEvent)
             this.event = new VirtualEvent((VirtualEvent) ticket.event);
@@ -36,22 +25,34 @@ public class Ticket
     }
 
     public Event getEvent() {
-        if(event instanceof VirtualEvent)
-            return new VirtualEvent((VirtualEvent) event);
-        else if(event instanceof ActualEvent)
-            return new ActualEvent((ActualEvent) event);
-        return null;
+        return event;
     }
 
-    public Client getClient() {
-        return new Client(client);
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public User getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public int getPrice() {
         return price;
     }
 
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     public String getAdditionalInfo() {
         return additionalInfo;
-    }*/
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
 }

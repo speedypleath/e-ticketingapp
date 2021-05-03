@@ -4,9 +4,12 @@ import java.util.Date;
 
 public class Invoice
 {
-    private Date date;
-    Invoice(Date date)
-    {
+    private final Date date;
+    Invoice(Date date) {
         this.date = date;
+    }
+
+    public Date getDate() {
+        return date;
     }
 }
