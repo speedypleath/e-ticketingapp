@@ -20,14 +20,15 @@ public class MainService {
     private static Map<Long, Location> locations;
     private static Map<Long, Event> events;
     private static MainService instance;
-    Writer writer = Writer.getInstance();
     private MainService(){}
 
     static {
-        artists = new HashMap<>();
-        users = new HashMap<>();
         locations = new HashMap<>();
         events = new HashMap<>();
+        Reader reader = Reader.getInstance();
+        artists = reader.readArtists();
+        users = reader.readUsers();
+        users.forEach(((s, user1) -> System.out.println(user1)));
     }
 
     public static MainService getInstance()
@@ -77,14 +78,15 @@ public class MainService {
         }
     }
 
-    public boolean login(String inputUser, String inputPass){
-        User user = users.get(inputUser);
+    public boolean login(String username, String password){
+        User user = users.get(username);
         if (user == null) {
             return false;
         } else {
             String salt = user.getSalt();
-            String calculatedHash = getEncryptedPassword(inputPass, salt);
+            String calculatedHash = getEncryptedPassword(password, salt);
             if (calculatedHash.equals(user.getPassword())){
+                this.user = user;
                 return true;
             } else {
                 return false;
@@ -128,12 +130,9 @@ public class MainService {
 
     }
 
-    public void readData(){
-
-    }
-
     public void saveData()
     {
+        Writer writer = Writer.getInstance();
         writer.writeArtists(artists);
         writer.writeUsers(users);
     }
