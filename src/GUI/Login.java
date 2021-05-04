@@ -5,8 +5,6 @@ import service.MainService;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Login extends JPanel
 {
@@ -29,7 +27,7 @@ public class Login extends JPanel
         JTextField username = new JTextField(10);
         add(username, gbc);
         gbc.gridy++;
-        JTextField password = new JTextField(10);
+        JPasswordField password = new JPasswordField(10);
         add(password, gbc);
 
         gbc.gridx = 1;
@@ -38,25 +36,32 @@ public class Login extends JPanel
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(20, 0 ,0 ,0);
+        JTextArea error = new JTextArea("Invalid Login");
+        error.setForeground(Color.red);
+        error.setVisible(false);
         JButton loginButton = new JButton("Login");
         loginButton.addActionListener((e ->
         {
-            if(MainService.getInstance().login(username.getText(), password.getText()))
-            System.out.println("da");
-            else
-            System.out.println("Nu");
+            if (MainService.getInstance().login(username.getText(), String.valueOf(password.getPassword())))
+            {
+                System.out.println("da");
+                error.setVisible(false);
+            }
+            else {
+                error.setVisible(true);
+                error.setText("Invalid Login");
+                System.out.println("nu");
+            }
         }
         ));
         add(loginButton, gbc);
         gbc.gridx++;
         JButton registerButton = new JButton("Register Page");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                layout.show(cards, "register");
-            }
-        });
+        registerButton.addActionListener(e -> layout.show(cards, "register"));
         add(registerButton, gbc);
+        gbc.gridy++;
+        gbc.gridx = 1;
+        add(error, gbc);
     }
 
 }

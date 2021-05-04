@@ -9,6 +9,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +38,31 @@ public class MainService {
             instance = new MainService();
         return instance;
     }
-    public void register(String username, String password, String email, String name){
+    public StringBuilder register(String username, String password, String email, String name){
         System.out.println("Da");
         String salt = getNewSalt();
         String encryptedPassword = getEncryptedPassword(password, salt);
-        User user = new User(salt, username, encryptedPassword, email, name);
-        users.put(username, user);
-        System.out.println(user);
+        StringBuilder result = new StringBuilder();
+
+        if(!Validator.validateName(name)){
+            result.append("Name should start with an uppercase character\n");
+        }
+        if(!Validator.validateEmail(email)) {
+            result.append("Email is not valid\n");
+        }
+        if(!Validator.validatePassword(password))   {
+            result.append("Your password must have at least 8 characters long, 1 uppercase & 1 lowercase character, 1 number, 1 special character");
+        }
+
+        if(result.length() == 0) {
+            Audit.getInstance().writeAudit("User registered", LocalDateTime.now());
+            User user = new User(salt, username, encryptedPassword, email, name);
+            users.put(username, user);
+            System.out.println(user);
+        }
+        else
+            System.out.println(result);
+        return result;
     }
 
     // Get a encrypted password using PBKDF2 hash algorithm
@@ -87,6 +106,7 @@ public class MainService {
             String calculatedHash = getEncryptedPassword(password, salt);
             if (calculatedHash.equals(user.getPassword())){
                 this.user = user;
+                Audit.getInstance().writeAudit("User logged in", LocalDateTime.now());
                 return true;
             } else {
                 return false;

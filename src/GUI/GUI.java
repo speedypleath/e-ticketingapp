@@ -27,8 +27,8 @@ public class GUI extends JFrame
         cards = new JPanel();
         login = new Login(layout, cards);
         register = new Register(layout, cards);
-        login.setPreferredSize(new Dimension(400,250));
-        register.setPreferredSize(new Dimension(400, 250));
+        register.setPreferredSize(new Dimension(500, 300));
+        login.setPreferredSize(new Dimension(350,225));
         cards.setLayout(layout);
         cards.add(login, "login");
         cards.add(register, "register");
