@@ -6,6 +6,7 @@ import user.User;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 public class Writer
@@ -50,7 +51,7 @@ public class Writer
         try {
             File file = new File("Data/User.csv");
             FileWriter writer = new FileWriter(file, false);
-            writer.write("username,password,salt,name,email\n");
+            writer.write("username,password,salt,name,email,role\n");
             for (Map.Entry<String, User> user : users.entrySet()) {
                 StringBuilder line = new StringBuilder();
                 line.append(user.getKey());
@@ -62,6 +63,8 @@ public class Writer
                 line.append(user.getValue().getName());
                 line.append(',');
                 line.append(user.getValue().getEmail());
+                line.append(',');
+                line.append(user.getValue().getClass().getSimpleName().toLowerCase(Locale.ROOT));
                 line.append("\n");
                 writer.write(line.toString());
             }

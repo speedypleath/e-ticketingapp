@@ -1,3 +1,5 @@
-username,password,salt,name,email
-speedypleath,on0Ab3xHeGkiM+XQychdKf2TqGE=,udNloZLM6wg=,Gheorghe Andrei,gheorgheandrei13@gmail.com
-test,pFyKfbWNikvIglGPXz9zHrQPuDs=,oIabBR63Fr4=,Test,test@test.com
+username,password,salt,name,email,role
+speedypleath,on0Ab3xHeGkiM+XQychdKf2TqGE=,udNloZLM6wg=,Gheorghe Andrei,gheorgheandrei13@gmail.com,organiser
+admin,pFyKfbWNikvIglGPXz9zHrQPuDs=,oIabBR63Fr4=,Test,test@test.com,administrator
+client,NRrMd+MUy/m1RkzvuxSU8zz/UbI=,p0yhAxC6el0=,Client,client@gmail.com,client
+john,lmOUhu8PYmnKQMVvD1f1dypbfp0=,FMKvE4ro2/Y=,John,john_doe@gmail.com,client

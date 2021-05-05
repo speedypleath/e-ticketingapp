@@ -3,6 +3,9 @@ package service;
 import artist.Artist;
 import event.Event;
 import location.Location;
+import user.Administrator;
+import user.Client;
+import user.Organiser;
 import user.User;
 
 import javax.crypto.SecretKeyFactory;
@@ -38,7 +41,7 @@ public class MainService {
             instance = new MainService();
         return instance;
     }
-    public StringBuilder register(String username, String password, String email, String name){
+    public StringBuilder register(String username, String password, String email, String name, String role){
         System.out.println("Da");
         String salt = getNewSalt();
         String encryptedPassword = getEncryptedPassword(password, salt);
@@ -56,7 +59,13 @@ public class MainService {
 
         if(result.length() == 0) {
             Audit.getInstance().writeAudit("User registered", LocalDateTime.now());
-            User user = new User(salt, username, encryptedPassword, email, name);
+            User user = null;
+            if(role.equals("client"))
+                user = new Client(salt, username, encryptedPassword, email, name);
+            else if(role.equals("administrator"))
+                user = new Administrator(salt, username, encryptedPassword, email, name);
+            else if(role.equals("organiser"))
+                user = new Organiser(salt, username, encryptedPassword, email, name);
             users.put(username, user);
             System.out.println(user);
         }

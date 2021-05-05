@@ -1,6 +1,9 @@
 package service;
 
 import artist.Artist;
+import user.Administrator;
+import user.Client;
+import user.Organiser;
 import user.User;
 
 import java.io.File;
@@ -53,7 +56,13 @@ public class Reader
             while (scanner.hasNext()){
                 String line = scanner.next();
                 String[] attributes = line.split(",");
-                User user = new User(attributes[2], attributes[0], attributes[1], attributes[4], attributes[3]);
+                User user = null;
+                if(attributes[5].equals("client"))
+                    user = new Client(attributes[2], attributes[0], attributes[1], attributes[4], attributes[3]);
+                else if(attributes[5].equals("administrator"))
+                    user = new Administrator(attributes[2], attributes[0], attributes[1], attributes[4], attributes[3]);
+                else if(attributes[5].equals("organiser"))
+                    user = new Organiser(attributes[2], attributes[0], attributes[1], attributes[4], attributes[3]);
                 users.put(attributes[0], user);
             }
             scanner.close();

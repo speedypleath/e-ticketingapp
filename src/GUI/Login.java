@@ -39,6 +39,10 @@ public class Login extends JPanel
         JTextArea error = new JTextArea("Invalid Login");
         error.setForeground(Color.red);
         error.setVisible(false);
+        error.setLineWrap(true);
+        error.setWrapStyleWord(true);
+        error.setOpaque(false);
+        error.setEditable(false);
         JButton loginButton = new JButton("Login");
         loginButton.addActionListener((e ->
         {
