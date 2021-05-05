@@ -1,11 +1,13 @@
 package artist;
 
+import utility.CSV;
+
 import java.util.Map;
 import java.util.UUID;
 
-public class Artist
+public class Artist implements CSV
 {
-    private final long id;
+    private final Long id;
     private String name;
     private String pseudonym;
 
@@ -13,7 +15,7 @@ public class Artist
         this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
     }
 
-    public Artist(long id,String name, String pseudonym)
+    public Artist(Long id,String name, String pseudonym)
     {
         this.id = id;
         this.name = name;
@@ -25,6 +27,8 @@ public class Artist
         this.name = name;
         this.pseudonym = pseudonym;
     }
+
+    public Long getId() { return  id; }
 
     public String getName() {
         return name;
@@ -60,5 +64,9 @@ public class Artist
                 ", name='" + name + '\'' +
                 ", pseudonym='" + pseudonym + '\'' +
                 '}';
+    }
+
+    public String toCSV() {
+        return id.toString()+ ',' + name + ',' + pseudonym + '\n';
     }
 }

@@ -7,4 +7,8 @@ public class Organiser extends User
         super(salt, username, password, email, name);
     }
 
+    @Override
+    public String toCSV() {
+        return super.toCSV() + ",organiser\n";
+    }
 }

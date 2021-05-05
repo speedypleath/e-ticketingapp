@@ -1,18 +1,32 @@
 package location;
-import event.*;
+
+import utility.CSV;
 
 import java.util.UUID;
 
-public class Location
+public class Location implements CSV
 {
-    private final String id;
+    private final Long id;
     private String name;
     private String address;
-    private int capacity;
-    private Event[] events;
+    private Integer capacity;
 
     public Location(){
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+    }
+
+    public Location(String name, String address, Integer capacity){
+        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+        this.name = name;
+        this.address = address;
+        this.capacity = capacity;
+    }
+
+    public Location(Long id, String name, String address, Integer capacity){
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.capacity = capacity;
     }
 
     public String getName() {
@@ -39,11 +53,8 @@ public class Location
         this.capacity = capacity;
     }
 
-    public Event[] getEvents() {
-        return events;
-    }
-
-    public void setEvents(Event[] events) {
-        this.events = events;
+    @Override
+    public String toCSV() {
+        return id.toString() + "," + name + "," + address + "," + capacity.toString() + '\n';
     }
 }

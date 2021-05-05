@@ -10,6 +10,7 @@ import user.User;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.io.File;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
@@ -134,16 +135,6 @@ public class MainService {
         artist.addToMap(artists);
     }
 
-    static  {
-        artists = new HashMap<>();
-        Artist artist1 = new Artist("Zheani Sparkes", "Zheani");
-        Artist artist2 = new Artist("Claire Elise Boucher", "Grimes");
-        Artist artist3 = new Artist("Katherine Mariko Zhang", "Lil Mariko");
-        artist1.addToMap(artists);
-        artist2.addToMap(artists);
-        artist3.addToMap(artists);
-    }
-
     void createEvent()
     {
 
@@ -162,7 +153,8 @@ public class MainService {
     public void saveData()
     {
         Writer writer = Writer.getInstance();
-        writer.writeArtists(artists);
-        writer.writeUsers(users);
+        writer.writeLogsIntoMap(new File("Data/Location.csv"), locations);
+        writer.writeLogsIntoMap(new File("Data/Artist.csv"), artists);
+        writer.writeLogsIntoMap(new File("Data/User.csv"), users);
     }
 }

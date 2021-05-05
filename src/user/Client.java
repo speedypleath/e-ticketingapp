@@ -25,4 +25,9 @@ public class Client extends User
     public void removeTicket(Ticket ticket){
         this.tickets.remove(ticket);
     }
+
+    @Override
+    public String toCSV() {
+        return super.toCSV() + ",client\n";
+    }
 }

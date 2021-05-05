@@ -6,16 +6,22 @@ import user.Organiser;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 //import transaction.Ticket;
 
 public abstract class Event
 {
+    private Long id;
     private Date date;
     private final List<Artist> artists;
     private final Organiser organiser;
     private String name;
     private String description;
+
+    public Long getId() {
+        return id;
+    }
 
     public Date getDate() {
         return date;
@@ -62,6 +68,7 @@ public abstract class Event
 
     Event(Event event)
     {
+        this.id = event.getId();
         this.organiser = new Organiser(event.organiser);
         this.date = new Date(event.getDate().getTime());
         this.name = event.name;
@@ -73,6 +80,7 @@ public abstract class Event
 
     Event(Builder<?> builder)
     {
+        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
         this.date = builder.date;
         this.artists = builder.artists;
         this.organiser = builder.organiser;

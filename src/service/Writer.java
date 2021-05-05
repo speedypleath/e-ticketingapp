@@ -1,13 +1,12 @@
 package service;
 
-import artist.Artist;
-import user.User;
+import utility.CSV;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Writer
 {
@@ -21,31 +20,7 @@ public class Writer
             instance = new Writer();
         return instance;
     }
-
-    public void writeArtists(Map<Long, Artist> artists) {
-        try {
-            File file = new File("Data/Artist.csv");
-            FileWriter writer = new FileWriter(file, false);
-            writer.write("id,name,pseudonym\n");
-            for (Map.Entry<Long, Artist> artist : artists.entrySet()) {
-                StringBuilder line = new StringBuilder();
-                line.append(artist.getKey());
-                line.append(',');
-                line.append(artist.getValue().getName());
-                line.append(',');
-                line.append(artist.getValue().getPseudonym());
-                line.append("\n");
-                writer.write(line.toString());
-            }
-            writer.close();
-        }
-        catch (IOException exception)
-        {
-            System.out.println(exception.toString());
-            return;
-        }
-    }
-
+/*
     public void writeUsers(Map<String, User> users)
     {
         try {
@@ -68,6 +43,24 @@ public class Writer
                 line.append("\n");
                 writer.write(line.toString());
             }
+            writer.close();
+        }
+        catch (IOException exception)
+        {
+            System.out.println(exception.toString());
+            return;
+        }
+    } */
+    public <K, T> void writeLogsIntoMap(File file, Map<K, T> logs) {
+        try {
+            Scanner reader = new Scanner(file);
+            reader.useDelimiter("\n");
+            String firstLine = reader.nextLine();
+            reader.close();
+            FileWriter writer = new FileWriter(file, false);
+            writer.write(firstLine + '\n');
+            for (Map.Entry<K, T> log : logs.entrySet())
+                writer.write(((CSV)log.getValue()).toCSV());
             writer.close();
         }
         catch (IOException exception)

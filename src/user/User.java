@@ -1,6 +1,8 @@
 package user;
 
-public class User
+import utility.CSV;
+
+public abstract class User implements CSV
 {
     private String salt;
     private final String username;
@@ -43,10 +45,6 @@ public class User
         return email;
     }
 
-    public Boolean checkCredentials(String username, String password) {
-        return this.username == username && this.password == password;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -56,5 +54,10 @@ public class User
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public String toCSV() {
+        return username + "," + password + "," + salt + "," + name + "," + email;
     }
 }
