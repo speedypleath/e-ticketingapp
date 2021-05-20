@@ -19,8 +19,8 @@ public class MainPage extends JPanel implements AuthActions {
         setLayout(new BorderLayout());
         layout = new CardLayout();
         cards = new JPanel();
-        JPanel addEvent = new AddEventPage(layout, cards);
-        searchEvents = new SearchEventsPage();
+        AddEventPage addEvent = new AddEventPage(layout, cards);
+        searchEvents = new SearchEventsPage(cards, layout, addEvent);
         JPanel addLocation = new AddLocationPage(layout, cards);
         JPanel addArtist = new AddArtistPage(layout, cards);
         JPanel empty = new JPanel();

@@ -6,7 +6,10 @@ import event.ActualEvent;
 import event.Event;
 import event.VirtualEvent;
 import location.Location;
-import user.*;
+import user.Administrator;
+import user.Client;
+import user.Organiser;
+import user.User;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -15,6 +18,7 @@ import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainService implements AuthActions {
     AuthActions actions;
@@ -22,7 +26,7 @@ public class MainService implements AuthActions {
     private final static Map<Long, Artist> artists;
     private final static Map<String, User> users;
     private final static Map<Long, Location> locations;
-    private final static Map<Long, Event> events;
+    private static Map<Long, Event> events;
     private static MainService instance;
     private MainService(){}
 
@@ -133,7 +137,7 @@ public class MainService implements AuthActions {
         this.actions.logout();
     }
 
-    public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName)
+    public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName, Long id)
     {
         Event.Builder builder = null;
         if(type.equals("online"))
@@ -145,6 +149,9 @@ public class MainService implements AuthActions {
                 .description(description)
                 .date(date)
                 .organiser((Organiser) user);
+
+        if(id != null)
+            eventBuilder.id(id);
 
         artists.forEach((aLong, artist) -> {
             if(artistStrings.contains(artist.getPseudonym()))
@@ -188,14 +195,19 @@ public class MainService implements AuthActions {
         return true;
     }
 
-    void deleteEvent(Event event)
+    public void deleteEvent(Event event)
     {
-
+        events = events.entrySet().stream().filter(
+                longEventEntry -> event != longEventEntry.getValue()
+                ).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        Audit.getInstance().writeAudit("Event deleted", LocalDateTime.now());
     }
 
-    void updateEvent(Event event)
+    public void editEvent(Event event, String name, String description, Date date, List<String> artistStrings, String type, String locationName)
     {
-
+        deleteEvent(event);
+        addEvent(name, description, date, artistStrings, type, locationName, event.getId());
+        Audit.getInstance().writeAudit("Event edited", LocalDateTime.now());
     }
 
     public String getUserRole(){
@@ -222,7 +234,7 @@ public class MainService implements AuthActions {
 
     public Vector<String> getEvents(){
         Vector<String> eventVector = new Vector<>();
-        events.forEach(((aLong, event) -> eventVector.add(event.getName() + "   " + event.getDate().toString())));
+        events.forEach(((aLong, event) -> eventVector.add(event.getName())));
         return eventVector;
     }
 
@@ -239,8 +251,14 @@ public class MainService implements AuthActions {
         Vector<String> eventVector = new Vector<>();
         events.forEach(((aLong, event) -> {
             if(event.getOrganiser() == user)
-                eventVector.add(event.getName() + "   " + event.getDate().toString());
+                eventVector.add(event.getName());
         }));
         return eventVector;
+    }
+
+    public Event getEventByName(String eventName) {
+        System.out.println(eventName);
+        return events.entrySet().stream().filter(event -> event.getValue().getName().equals(eventName))
+                .findFirst().orElse(null).getValue();
     }
 }

@@ -23,6 +23,9 @@ public class AddEventPage extends JPanel
     JTextField url = new JTextField();
     JRadioButton online = new JRadioButton("Online");
     JRadioButton live = new JRadioButton("Live");
+    JButton deleteButton;
+    Event event;
+
 
     AddEventPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
@@ -115,19 +118,28 @@ public class AddEventPage extends JPanel
         gbc.insets = new Insets(20, 0 ,0 ,0);
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener((actionEvent) -> {
-            MainService.getInstance().addEvent(name.getText(),
-                    description.getText(), (Date) datePicker.getModel().getValue(), artists.getSelectedValues(),
-                    live.isSelected() ? "live" : "online",
-                    live.isSelected() ? locations.getSelectedValue() : url.getText());
+            if(event == null)
+                MainService.getInstance().addEvent(name.getText(),
+                        description.getText(), (Date) datePicker.getModel().getValue(), artists.getSelectedValues(),
+                        live.isSelected() ? "live" : "online",
+                        live.isSelected() ? locations.getSelectedValue() : url.getText(), null);
+            else{
+                MainService.getInstance().editEvent(event, name.getText(),
+                        description.getText(), (Date) datePicker.getModel().getValue(), artists.getSelectedValues(),
+                        live.isSelected() ? "live" : "online",
+                        live.isSelected() ? locations.getSelectedValue() : url.getText());
+            }
         });
         add(submitButton, gbc);
         gbc.gridx++;
-        JButton cancelButton = new JButton("Cancel");
-       /* cancelButton.addActionListener(e -> {
-            layout.show(cards, "login");
-            cards.setPreferredSize(new Dimension(350, 225));
-        }); */
-        add(cancelButton, gbc);
+        deleteButton = new JButton("Delete Event");
+        deleteButton.addActionListener(e -> {
+            System.out.println(event);
+            MainService.getInstance().deleteEvent(event);
+            addEvent();
+        });
+        deleteButton.setVisible(false);
+        add(deleteButton, gbc);
     }
 
     void editEvent(Event event) {
@@ -137,5 +149,17 @@ public class AddEventPage extends JPanel
             live.setSelected(true);
         else
             online.setSelected(true);
+        deleteButton.setVisible(true);
+        this.event = event;
+    }
+
+    void addEvent() {
+        name.setText("");
+        description.setText("");
+        event = null;
+        deleteButton.setVisible(false);
+        live.setSelected(false);
+        online.setSelected(false);
+        deleteButton.setVisible(false);
     }
 }

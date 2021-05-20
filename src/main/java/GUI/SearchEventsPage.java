@@ -1,9 +1,11 @@
 package GUI;
 
+import event.Event;
 import service.MainService;
 import utility.CosineSimilarity;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Vector;
@@ -12,8 +14,14 @@ public class SearchEventsPage extends JPanel {
 
     DefaultListModel defaultListModel;
     Vector values = MainService.getInstance().getEvents();
+    JPanel cards;
+    CardLayout layout;
+    AddEventPage addEventPage;
 
-    public SearchEventsPage() {
+    public SearchEventsPage(JPanel cards, CardLayout layout, AddEventPage addEvent) {
+        this.cards = cards;
+        this.layout = layout;
+        addEventPage = addEvent;
         initComponents();
         this.bindData(MainService.getInstance().getEvents());
     }
@@ -42,23 +50,27 @@ public class SearchEventsPage extends JPanel {
 
     private void initComponents() {
 
-        jScrollPane1 = new JScrollPane();
+        JScrollPane jScrollPane1 = new JScrollPane();
         myJList = new JList<>();
         searchTxt = new JTextField();
-        searchLabel = new JLabel();
+        JLabel searchLabel = new JLabel();
         JButton cartButton = new JButton("Buy");
 
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         myJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-
+                String text = myJList.getSelectedValue();
+                Event event = MainService.getInstance().getEventByName(text);
+                System.out.println(event);
+                addEventPage.editEvent(event);
+                layout.show(cards, "addEvent");
             }
         });
         jScrollPane1.setViewportView(myJList);
 
         searchTxt.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                searchTxtKeyReleased(evt);
+                searchTxtKeyReleased();
             }
         });
 
@@ -96,13 +108,10 @@ public class SearchEventsPage extends JPanel {
 
     }
 
-    private void searchTxtKeyReleased(java.awt.event.KeyEvent evt) {
+    private void searchTxtKeyReleased() {
         searchFilter(searchTxt.getText());
     }
 
-    private JPanel jPanel1;
-    private JScrollPane jScrollPane1;
     private JList<String> myJList;
-    private JLabel searchLabel;
     private JTextField searchTxt;
 }
