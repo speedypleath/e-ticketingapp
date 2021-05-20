@@ -8,25 +8,22 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Vector;
 
-public class SearchEvents extends JPanel {
+public class SearchEventsPage extends JPanel {
 
-    DefaultListModel defaultListModel = new DefaultListModel();
+    DefaultListModel defaultListModel;
     Vector values = MainService.getInstance().getEvents();
-    /*
-    Constructor
-    */
-    public SearchEvents() {
+
+    public SearchEventsPage() {
         initComponents();
-        this.bindData();
+        this.bindData(MainService.getInstance().getEvents());
     }
-    private void bindData(){
-        MainService.getInstance().getEvents().forEach((event) -> defaultListModel.addElement(event));
+    public void bindData(Vector<String> events){
+        DefaultListModel defaultListModel = new DefaultListModel();
+        events.forEach((event) -> defaultListModel.addElement(event));
         myJList.setModel(defaultListModel);
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
-    /*
-    Search/Filter data
-    */
+
     private void searchFilter(String searchTerm) {
         if (searchTerm.length() == 0)
             return;
@@ -42,8 +39,7 @@ public class SearchEvents extends JPanel {
         defaultListModel = filteredItems;
         myJList.setModel(defaultListModel);
     }
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">
+
     private void initComponents() {
 
         jScrollPane1 = new JScrollPane();
@@ -98,7 +94,7 @@ public class SearchEvents extends JPanel {
                                 .addContainerGap())
         );
 
-    }// </editor-fold>
+    }
 
     private void searchTxtKeyReleased(java.awt.event.KeyEvent evt) {
         searchFilter(searchTxt.getText());

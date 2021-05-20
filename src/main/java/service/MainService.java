@@ -1,14 +1,12 @@
 package service;
 
 import artist.Artist;
+import auth.AuthActions;
 import event.ActualEvent;
 import event.Event;
 import event.VirtualEvent;
 import location.Location;
-import user.Administrator;
-import user.Client;
-import user.Organiser;
-import user.User;
+import user.*;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -18,7 +16,8 @@ import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class MainService {
+public class MainService implements AuthActions {
+    AuthActions actions;
     private User user;
     private final static Map<Long, Artist> artists;
     private final static Map<String, User> users;
@@ -115,6 +114,7 @@ public class MainService {
             if (calculatedHash.equals(user.getPassword())){
                 this.user = user;
                 Audit.getInstance().writeAudit("User logged in", LocalDateTime.now());
+                actions.login(username, password);
                 return true;
             } else {
                 return false;
@@ -122,9 +122,15 @@ public class MainService {
         }
     }
 
-    void logout()
+    @Override
+    public void setNextAction(AuthActions nextAction) {
+        this.actions = nextAction;
+    }
+
+    public void logout()
     {
         this.user = null;
+        this.actions.logout();
     }
 
     public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName)
@@ -192,6 +198,16 @@ public class MainService {
 
     }
 
+    public String getUserRole(){
+        if(user == null)
+            return "not authenticated";
+        if(user instanceof Administrator)
+            return "admin";
+        if(user instanceof Client)
+            return "client";
+        return "organiser";
+    }
+
     public Vector<String> getArtists(){
         Vector<String> artistVector = new Vector<>();
         artists.forEach(((aLong, artist) -> artistVector.add(artist.getPseudonym())));
@@ -217,5 +233,14 @@ public class MainService {
         writer.writeLogsIntoMap(new File("Data/Artist.csv"), artists);
         writer.writeLogsIntoMap(new File("Data/User.csv"), users);
         writer.writeLogsIntoMap(new File("Data/Event.csv"), events);
+    }
+
+    public Vector<String> getUserEvents() {
+        Vector<String> eventVector = new Vector<>();
+        events.forEach(((aLong, event) -> {
+            if(event.getOrganiser() == user)
+                eventVector.add(event.getName() + "   " + event.getDate().toString());
+        }));
+        return eventVector;
     }
 }

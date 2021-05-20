@@ -49,4 +49,9 @@ public class VirtualEvent extends Event
             return this;
         }
     }
+
+    @Override
+    public String toCSV() {
+        return super.toCSV() + ",online," + inviteLink + '\n';
+    }
 }

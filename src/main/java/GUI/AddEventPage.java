@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.Date;
 import java.util.Properties;
 
-public class AddEvent extends JPanel
+public class AddEventPage extends JPanel
 {
     JTextField name = new JTextField(10);
     JTextArea description = new JTextArea();
@@ -24,7 +24,7 @@ public class AddEvent extends JPanel
     JRadioButton online = new JRadioButton("Online");
     JRadioButton live = new JRadioButton("Live");
 
-    AddEvent(CardLayout layout, JPanel cards){
+    AddEventPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Add Event"));
         GridBagConstraints gbc = new GridBagConstraints();

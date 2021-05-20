@@ -1,6 +1,9 @@
 package service;
 
 import artist.Artist;
+import event.ActualEvent;
+import event.Event;
+import event.VirtualEvent;
 import location.Location;
 import user.Administrator;
 import user.Client;
@@ -9,7 +12,11 @@ import user.User;
 import utility.ReaderUtil;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Reader
@@ -23,6 +30,51 @@ public class Reader
         if (instance == null)
             instance = new Reader();
         return instance;
+    }
+
+    public Map<Long, Event> readEvents(Map<Long, Artist> artists, Map<String, User> users, Map<Long, Location> locations) {
+        ReaderUtil<Long, Event> reader = new ReaderUtil<Long, Event>(){
+            protected Map<Long, Event> newMap() {
+                return new HashMap<Long, Event>();
+            }
+            protected void doThings(String[] data, Map<Long, Event> events) {
+                Event.Builder builder = null;
+                if(data[6].equals("online"))
+                    builder = new VirtualEvent.Builder();
+                else
+                    builder = new ActualEvent.Builder();
+                Event.Builder eventBuilder = builder;
+                try {
+                    eventBuilder
+                            .id(Long.valueOf(data[0]))
+                            .name(data[1])
+                            .description(data[2])
+                            .date(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", new Locale("us")).parse(data[3]))
+                            .organiser((Organiser) users.get(data[4]));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Arrays.stream(data[5].split("/"))
+                        .forEach((s ->
+                                eventBuilder.addArtist(artists.get(Long.valueOf(s)))));
+                if(data[6].equals("online")) {
+                    VirtualEvent.Builder virtualBuilder = (VirtualEvent.Builder) builder;
+                    virtualBuilder.inviteLink(data[7]);
+                    VirtualEvent event = virtualBuilder.build();
+                    events.put(event.getId(), event);
+                }
+                else {
+                    ActualEvent.Builder liveBuilder = (ActualEvent.Builder) builder;
+                    locations.forEach((aLong, location) -> {
+                        if (location.equals(data[7]))
+                            liveBuilder.location(location);
+                    });
+                    ActualEvent event = liveBuilder.build();
+                    events.put(event.getId(), event);
+                }
+            }
+        };
+        return reader.readLogsIntoMap(new File("Data/Event.csv"));
     }
 
     public Map<Long, Artist> readArtists() {

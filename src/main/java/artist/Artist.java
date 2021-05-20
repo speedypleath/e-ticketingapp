@@ -5,15 +5,11 @@ import utility.CSV;
 import java.util.Map;
 import java.util.UUID;
 
-public class Artist implements CSV
+public final class Artist implements CSV
 {
     private final Long id;
-    private String name;
-    private String pseudonym;
-
-    public Artist(){
-        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-    }
+    private final String name;
+    private final String pseudonym;
 
     public Artist(Long id,String name, String pseudonym)
     {
@@ -34,16 +30,8 @@ public class Artist implements CSV
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getPseudonym() {
         return pseudonym;
-    }
-
-    public void setPseudonym(String pseudonym) {
-        this.pseudonym = pseudonym;
     }
 
     public Artist(Artist artist) {

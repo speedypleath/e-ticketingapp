@@ -44,4 +44,9 @@ public class ActualEvent extends Event
             return this;
         }
     }
+
+    @Override
+    public String toCSV() {
+        return super.toCSV() + ",live," + location.getId() + '\n';
+    }
 }

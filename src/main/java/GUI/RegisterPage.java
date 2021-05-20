@@ -6,9 +6,9 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class Register extends JPanel
+public class RegisterPage extends JPanel
 {
-    Register(CardLayout layout, JPanel cards){
+    RegisterPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Register"));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -71,7 +71,8 @@ public class Register extends JPanel
             StringBuilder result = MainService.getInstance().register(username.getText(),
                     String.valueOf(password.getPassword()), email.getText(), name.getText(), client.isSelected() ? "client" : "organiser");
             if(result.length() == 0){
-                error.setVisible(false);
+                layout.show(cards, "searchEvents");
+                cards.setPreferredSize(new Dimension(700,500));
             }
             else {
                 error.setVisible(true);
@@ -83,7 +84,7 @@ public class Register extends JPanel
         JButton loginButton = new JButton("Login Page");
         loginButton.addActionListener(e -> {
             layout.show(cards, "login");
-            cards.setPreferredSize(new Dimension(350, 225));
+            cards.setMaximumSize(new Dimension(350, 225));
         });
         add(loginButton, gbc);
         gbc.insets = new Insets(20, 0 ,0 ,0);
