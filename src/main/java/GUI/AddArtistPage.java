@@ -1,5 +1,6 @@
 package GUI;
 
+import artist.Artist;
 import service.MainService;
 
 import javax.swing.*;
@@ -7,6 +8,11 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class AddArtistPage extends JPanel {
+    private final JTextField name;
+    private final JTextField pseudonym;
+    private final JButton submitButton;
+    private final JButton deleteButton;
+    private Artist artist;
     AddArtistPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Add Artist"));
@@ -23,10 +29,10 @@ public class AddArtistPage extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
-        JTextField name = new JTextField(10);
+        name = new JTextField(10);
         add(name, gbc);
         gbc.gridy++;
-        JTextField pseudonym = new JTextField(10);
+        pseudonym = new JTextField(10);
         add(pseudonym, gbc);
 
         gbc.gridx = 1;
@@ -35,16 +41,36 @@ public class AddArtistPage extends JPanel {
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(20, 0 ,0 ,0);
-        JButton loginButton = new JButton("Submit");
-        loginButton.addActionListener((e -> MainService.getInstance().addArtist(name.getText(), pseudonym.getText())));
-        add(loginButton, gbc);
+        submitButton = new JButton("Submit");
+        submitButton.addActionListener((e -> {
+            if(artist == null)
+                MainService.getInstance().addArtist(name.getText(), pseudonym.getText());
+            else
+                MainService.getInstance().editArtist(artist, name.getText(), pseudonym.getText());
+        }));
+        add(submitButton, gbc);
         gbc.gridx++;
-        JButton registerButton = new JButton("Cancel");
-        registerButton.addActionListener(e ->
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e ->
         {
-            layout.show(cards, "register");
-            cards.setPreferredSize(new Dimension(600, 350));
+            MainService.getInstance().deleteArtist(artist);
+            addArtist();
         });
-        add(registerButton, gbc);
+        add(deleteButton, gbc);
+        deleteButton.setVisible(false);
+    }
+
+    public void edit(Artist value) {
+        name.setText(value.getName());
+        pseudonym.setText(value.getPseudonym());
+        artist = value;
+        deleteButton.setVisible(true);
+    }
+
+    public void addArtist(){
+        name.setText("");
+        pseudonym.setText("");
+        artist = null;
+        deleteButton.setVisible(false);
     }
 }

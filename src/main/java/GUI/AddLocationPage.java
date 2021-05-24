@@ -1,5 +1,6 @@
 package GUI;
 
+import location.Location;
 import service.MainService;
 
 import javax.swing.*;
@@ -7,6 +8,12 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class AddLocationPage extends JPanel {
+    private final JTextField name;
+    private final JTextField address;
+    private final JTextField capacity;
+    private final JButton submitButton;
+    private final JButton deleteButton;
+    private Location location;
     AddLocationPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Add Location"));
@@ -25,13 +32,13 @@ public class AddLocationPage extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
-        JTextField name = new JTextField(10);
+        name = new JTextField(10);
         add(name, gbc);
         gbc.gridy++;
-        JTextField address = new JTextField(10);
+        address = new JTextField(10);
         add(address, gbc);
         gbc.gridy++;
-        JTextField capacity = new JTextField(10);
+        capacity = new JTextField(10);
         add(capacity, gbc);
 
         gbc.gridx = 1;
@@ -47,29 +54,44 @@ public class AddLocationPage extends JPanel {
         error.setWrapStyleWord(true);
         error.setOpaque(false);
         error.setEditable(false);
-        JButton loginButton = new JButton("Submit");
-        loginButton.addActionListener((e ->
+        submitButton = new JButton("Submit");
+        submitButton.addActionListener((e ->
         {
-            if (MainService.getInstance().addLocation(name.getText(), address.getText(), capacity.getText()))
-            {
-                error.setVisible(false);
+            if(location != null) {
+                if (MainService.getInstance().addLocation(name.getText(), address.getText(), capacity.getText())) {
+                    error.setVisible(false);
+                } else
+                    error.setVisible(true);
             }
             else
-                error.setVisible(true);
-
+                MainService.getInstance().editLocation(location, name.getText(), address.getText(), Integer.valueOf(capacity.getText()));
         }
         ));
-        add(loginButton, gbc);
+        add(submitButton, gbc);
         gbc.gridx++;
-        JButton registerButton = new JButton("Cancel");
-        registerButton.addActionListener(e ->
+
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e ->
         {
-            layout.show(cards, "register");
-            cards.setPreferredSize(new Dimension(600, 350));
+            MainService.getInstance().deleteLocation(location);
+            addArtist();
         });
-        add(registerButton, gbc);
-        gbc.gridy++;
-        gbc.gridx = 1;
-        add(error, gbc);
+        add(deleteButton, gbc);
+        deleteButton.setVisible(false);
+    }
+    public void edit(Location value) {
+        name.setText(value.getName());
+        address.setText(value.getAddress());
+        capacity.setText(String.valueOf(value.getCapacity()));
+        location = value;
+        deleteButton.setVisible(true);
+    }
+
+    public void addArtist(){
+        name.setText("");
+        address.setText("");
+        capacity.setText("");
+        location = null;
+        deleteButton.setVisible(false);
     }
 }

@@ -14,9 +14,10 @@ public abstract class SearchPage <T> extends JPanel{
     DefaultListModel defaultListModel;
     List<T> values;
     List strings;
-    JPanel cards;
-    CardLayout layout;
+    private JPanel cards;
+    private CardLayout layout;
     AddEventPage addEventPage;
+    private String currentAction = "first";
 
     public abstract void getStrings();
 
@@ -34,6 +35,8 @@ public abstract class SearchPage <T> extends JPanel{
         strings.forEach((string) -> defaultListModel.addElement(string));
         myJList.setModel(defaultListModel);
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        repaint();
+        revalidate();
     }
 
     private void searchFilter(String searchTerm) {
@@ -52,8 +55,13 @@ public abstract class SearchPage <T> extends JPanel{
         myJList.setModel(defaultListModel);
     }
 
-    public abstract void action();
+    public abstract void action1();
 
+    public abstract void action2();
+
+    public void setCurrentAction(String action){
+        currentAction = action;
+    };
 
     private void initComponents() {
 
@@ -66,7 +74,10 @@ public abstract class SearchPage <T> extends JPanel{
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         myJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                action();
+                if(currentAction == "first")
+                    action1();
+                else
+                    action2();
             }
         });
         jScrollPane1.setViewportView(myJList);

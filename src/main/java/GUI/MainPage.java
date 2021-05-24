@@ -18,6 +18,9 @@ public class MainPage extends JPanel implements AuthActions {
     private final SearchPage<Event> searchEvents;
     private final SearchPage<Artist> searchArtists;
     private final SearchPage<Location> searchLocations;
+    private final AddEventPage addEvent;
+    private final AddArtistPage addArtist;
+    private final AddLocationPage addLocation;
     MainPage()
     {
         setLayout(new BorderLayout());
@@ -25,7 +28,15 @@ public class MainPage extends JPanel implements AuthActions {
         setLayout(new BorderLayout());
         layout = new CardLayout();
         cards = new JPanel();
-        AddEventPage addEvent = new AddEventPage(layout, cards);
+        addEvent = new AddEventPage(layout, cards);
+        addLocation = new AddLocationPage(layout, cards);
+        addArtist = new AddArtistPage(layout, cards);
+        JPanel empty = new JPanel();
+        empty.setLayout(new BorderLayout());
+        JLabel welcome = new JLabel("<html><div style='text-align: center;'>Welcome</div></html>");
+        welcome.setHorizontalAlignment(SwingConstants.CENTER);
+        welcome.setVerticalAlignment(SwingConstants.CENTER);
+        empty.add(welcome, BorderLayout.CENTER);
         searchEvents = new SearchPage<Event>(cards, layout, addEvent, MainService.getInstance().getEvents()) {
             @Override
             public void getStrings() {
@@ -33,7 +44,12 @@ public class MainPage extends JPanel implements AuthActions {
             }
 
             @Override
-            public void action() {
+            public void action1() {
+
+            }
+
+            @Override
+            public void action2() {
                 Event value = values.get(myJList.getSelectedIndex());
                 addEventPage.editEvent(value);
                 layout.show(cards, "addEvent");
@@ -43,14 +59,21 @@ public class MainPage extends JPanel implements AuthActions {
         searchArtists = new SearchPage<Artist>(cards, layout, addEvent, MainService.getInstance().getArtists()) {
             @Override
             public void getStrings() {
-                this.strings = values.stream().map(artist -> artist.getPseudonym()).collect(Collectors.toList());
+                this.strings = values.stream().map(Artist::getPseudonym).collect(Collectors.toList());
             }
 
             @Override
-            public void action() {
+            public void action1() {
                 Artist value = values.get(myJList.getSelectedIndex());
                 layout.show(cards, "searchEvents");
                 searchEvents.bindData(MainService.getInstance().getEventsByArtist(value));
+            }
+
+            @Override
+            public void action2() {
+                Artist value = values.get(myJList.getSelectedIndex());
+                addArtist.edit(value);
+                layout.show(cards, "addArtist");
             }
         };
 
@@ -61,20 +84,19 @@ public class MainPage extends JPanel implements AuthActions {
             }
 
             @Override
-            public void action() {
+            public void action1() {
                 Location value = values.get(myJList.getSelectedIndex());
                 layout.show(cards, "searchEvents");
                 searchEvents.bindData(MainService.getInstance().getEventsByLocation(value));
             }
+
+            @Override
+            public void action2() {
+                Location value = values.get(myJList.getSelectedIndex());
+                addLocation.edit(value);
+                layout.show(cards, "addLocation");
+            }
         };
-        JPanel addLocation = new AddLocationPage(layout, cards);
-        JPanel addArtist = new AddArtistPage(layout, cards);
-        JPanel empty = new JPanel();
-        empty.setLayout(new BorderLayout());
-        JLabel welcome = new JLabel("<html><div style='text-align: center;'>Welcome</div></html>");
-        welcome.setHorizontalAlignment(SwingConstants.CENTER);
-        welcome.setVerticalAlignment(SwingConstants.CENTER);
-        empty.add(welcome, BorderLayout.CENTER);
         cards.setLayout(layout);
         cards.setPreferredSize(new Dimension(800,225));
         cards.add(empty, "empty");
@@ -131,6 +153,8 @@ public class MainPage extends JPanel implements AuthActions {
         }
 
         if(user.equals("client") || user.equals("organiser")) {
+            searchLocations.setCurrentAction("first");
+            searchArtists.setCurrentAction("first");
             JButton userEventsButton = new JButton("Your events");
             userEventsButton.setPreferredSize(new Dimension(150, 30));
             userEventsButton.addActionListener((actionEvent) -> {
@@ -142,6 +166,8 @@ public class MainPage extends JPanel implements AuthActions {
         }
 
         if(user.equals("admin")) {
+            searchLocations.setCurrentAction("second");
+            searchArtists.setCurrentAction("second");
             JButton addLocationButton = new JButton("Add location");
             addLocationButton.setPreferredSize(new Dimension(150, 30));
             addLocationButton.addActionListener((actionEvent) -> layout.show(cards, "addLocation"));

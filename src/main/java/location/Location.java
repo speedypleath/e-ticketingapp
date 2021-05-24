@@ -45,7 +45,7 @@ public final class Location implements CSV
         return address;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 

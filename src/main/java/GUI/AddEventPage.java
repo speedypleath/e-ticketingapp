@@ -148,7 +148,6 @@ public class AddEventPage extends JPanel
         gbc.gridx++;
         deleteButton = new JButton("Delete Event");
         deleteButton.addActionListener(e -> {
-            System.out.println(event);
             MainService.getInstance().deleteEvent(event);
             addEvent();
         });
@@ -174,6 +173,5 @@ public class AddEventPage extends JPanel
         deleteButton.setVisible(false);
         live.setSelected(false);
         online.setSelected(false);
-        deleteButton.setVisible(false);
     }
 }

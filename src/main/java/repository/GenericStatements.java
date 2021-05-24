@@ -12,7 +12,7 @@ import java.util.Optional;
 public class GenericStatements
 {
     public static void delete(Long id, String table){
-        String deleteSql = "DELETE FROM "+ table + " WHERE eventId = ?";
+        String deleteSql = "DELETE FROM "+ table + " WHERE " + table + "Id = ?";
         Connection connection = DatabaseConfig.getDatabaseConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(deleteSql);

@@ -7,10 +7,7 @@ import event.Event;
 import event.VirtualEvent;
 import exceptions.NoRoleException;
 import location.Location;
-import repository.ArtistRepository;
-import repository.EventRepository;
-import repository.LocationRepository;
-import repository.UserRepository;
+import repository.*;
 import user.Administrator;
 import user.Client;
 import user.Organiser;
@@ -269,5 +266,25 @@ public class MainService implements AuthActions {
                 })
                 .collect(Collectors.toList());
         return eventsList;
+    }
+
+    public void deleteArtist(Artist artist) {
+        GenericStatements.delete(artist.getId(), "Artist");
+    }
+
+    public void deleteLocation(Location location) {
+        GenericStatements.delete(location.getId(), "Location");
+    }
+
+    public void editArtist(Artist artist, String name, String pseudonym)
+    {
+        artistRepository.deleteArtist(artist.getId());
+        artistRepository.insert(artist.getId(), name, pseudonym);
+    }
+
+    public void editLocation(Location location, String name, String address, Integer capacity)
+    {
+        locationRepository.deleteLocation(location.getId());
+        locationRepository.insert(location.getId(), name, address, capacity);
     }
 }
