@@ -1,7 +1,8 @@
 # e-ticketingapp
 Proiect PAO
 ### Actiuni
-* Utilizatorii isi pot face cont, se pot loga și deloga.
+* Utilizatorii isi pot face cont pe aplicatie
+* Utilizatorii se pot loga și deloga.
 * Utilizatorii pot cauta un eveniment
 * Organizatorii pot crea un eveniment
 * Organizatorii isi pot edita si sterge evenimentele
@@ -9,7 +10,6 @@ Proiect PAO
 * Clientii pot sa plateasca produsele din cos, caz in care o tranzactie este creata si utilizatorul primeste o chitanta
 * Utilizatorii pot vedea toate evenimentele dintr-o anumite locatie sau toate evenimentele la care participa un anumit artist
 * Clientii pot darui bilete altor clienti
-* Clientii pot rambursa un bilet
 * Administratorii pot adauga, edita sau sterge artisti, locatii 
 ### Tipuri de obiecte
 * User
