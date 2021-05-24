@@ -7,7 +7,7 @@ Proiect PAO
 * Organizatorii isi pot edita si sterge evenimentele
 * Clientii pot adauga sau sterge bilete din cosul de cumparaturi
 * Clientii pot sa plateasca produsele din cos, caz in care o tranzactie este creata si utilizatorul primeste o chitanta
-* Utilizatorii pot vedea toate evenimentele dintr-o anumite locatie, organizate de un anumit organizator sau la care participa un anumit artist
+* Utilizatorii pot vedea toate evenimentele dintr-o anumite locatie sau toate evenimentele la care participa un anumit artist
 * Clientii pot darui bilete altor clienti
 * Clientii pot rambursa un bilet
 * Administratorii pot adauga, edita sau sterge artisti, locatii 
