@@ -2,21 +2,18 @@ package event;
 
 import location.Location;
 
-public class ActualEvent extends Event
+public final class ActualEvent extends Event
 {
-    private Location location;
+    private final Location location;
 
     public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
+        return new Location(location);
     }
 
     public ActualEvent(ActualEvent event)
     {
         super(event);
+        this.location = new Location(event.location);
     }
 
     private ActualEvent(Builder builder)

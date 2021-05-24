@@ -1,5 +1,7 @@
 package GUI;
 
+import auth.LoginLogoutChain;
+import exceptions.NoRoleException;
 import service.MainService;
 
 import javax.swing.*;
@@ -68,15 +70,19 @@ public class RegisterPage extends JPanel
 
         JButton registerButton = new JButton("Register");
         registerButton.addActionListener((actionEvent) -> {
-            StringBuilder result = MainService.getInstance().register(username.getText(),
-                    String.valueOf(password.getPassword()), email.getText(), name.getText(), client.isSelected() ? "client" : "organiser");
-            if(result.length() == 0){
-                layout.show(cards, "searchEvents");
-                cards.setPreferredSize(new Dimension(700,500));
+            try {
+                StringBuilder result = MainService.getInstance().register(username.getText(),
+                        String.valueOf(password.getPassword()), email.getText(), name.getText(), client.isSelected() ? "client" : "organiser");
+                if (result.length() == 0) {
+                    LoginLogoutChain chain = new LoginLogoutChain();
+                    chain.login(username.getText(), String.valueOf(password.getPassword()));
+                } else {
+                    error.setVisible(true);
+                    error.setText(String.valueOf(result));
+                }
             }
-            else {
-                error.setVisible(true);
-                error.setText(String.valueOf(result));
+            catch (NoRoleException e) {
+                System.out.println(e);
             }
         });
         add(registerButton, gbc);

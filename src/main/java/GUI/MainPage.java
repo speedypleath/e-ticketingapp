@@ -2,16 +2,18 @@ package GUI;
 
 import auth.AuthActions;
 import auth.LoginLogoutChain;
+import event.Event;
 import service.MainService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.stream.Collectors;
 
 public class MainPage extends JPanel implements AuthActions {
     private JPanel left;
     private JPanel cards;
     private CardLayout layout;
-    private SearchEventsPage searchEvents;
+    private SearchPage searchEvents;
     MainPage()
     {
         setLayout(new BorderLayout());
@@ -20,7 +22,19 @@ public class MainPage extends JPanel implements AuthActions {
         layout = new CardLayout();
         cards = new JPanel();
         AddEventPage addEvent = new AddEventPage(layout, cards);
-        searchEvents = new SearchEventsPage(cards, layout, addEvent);
+        searchEvents = new SearchPage<Event>(cards, layout, addEvent, MainService.getInstance().getEvents()) {
+            @Override
+            public void getStrings() {
+                this.strings = values.stream().map(event -> event.getName() + "    " + event.getDate().toString()).collect(Collectors.toList());
+            }
+
+            @Override
+            public void action() {
+                Event value = values.get(myJList.getSelectedIndex());
+                addEventPage.editEvent(value);
+                layout.show(cards, "addEvent");
+            }
+        };
         JPanel addLocation = new AddLocationPage(layout, cards);
         JPanel addArtist = new AddArtistPage(layout, cards);
         JPanel empty = new JPanel();

@@ -1,33 +1,37 @@
 package GUI;
 
-import event.Event;
-import service.MainService;
 import utility.CosineSimilarity;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
-public class SearchEventsPage extends JPanel {
+public abstract class SearchPage <T> extends JPanel{
 
     DefaultListModel defaultListModel;
-    Vector values = MainService.getInstance().getEvents();
+    Vector<T> values;
+    List strings;
     JPanel cards;
     CardLayout layout;
     AddEventPage addEventPage;
 
-    public SearchEventsPage(JPanel cards, CardLayout layout, AddEventPage addEvent) {
+    public abstract void getStrings();
+
+    public SearchPage(JPanel cards, CardLayout layout, AddEventPage addEvent, Vector<T> values) {
         this.cards = cards;
         this.layout = layout;
         addEventPage = addEvent;
         initComponents();
-        this.bindData(MainService.getInstance().getEvents());
+        this.bindData(values);
     }
-    public void bindData(Vector<String> events){
+    public void bindData(Vector<T> values){
+        this.values = values;
+        getStrings();
         DefaultListModel defaultListModel = new DefaultListModel();
-        events.forEach((event) -> defaultListModel.addElement(event));
+        strings.forEach((string) -> defaultListModel.addElement(string));
         myJList.setModel(defaultListModel);
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
@@ -39,14 +43,17 @@ public class SearchEventsPage extends JPanel {
         Comparator<String> comparator = Comparator.comparingDouble(
                 p -> CosineSimilarity.cosineSimilarity(p.toLowerCase(Locale.ROOT), searchTerm.toLowerCase(Locale.ROOT)));
 
-        values.sort(comparator);
-        for(int i=0;i<Math.min(5, values.size());i++) {
-            filteredItems.addElement(values.get(i));
-            System.out.println(values.get(i));
+        strings.sort(comparator);
+        for(int i=0;i<Math.min(5, strings.size());i++) {
+            filteredItems.addElement(strings.get(i));
+            System.out.println(strings.get(i));
         }
         defaultListModel = filteredItems;
         myJList.setModel(defaultListModel);
     }
+
+    public abstract void action();
+
 
     private void initComponents() {
 
@@ -59,11 +66,7 @@ public class SearchEventsPage extends JPanel {
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         myJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                String text = myJList.getSelectedValue();
-                Event event = MainService.getInstance().getEventByName(text);
-                System.out.println(event);
-                addEventPage.editEvent(event);
-                layout.show(cards, "addEvent");
+                action();
             }
         });
         jScrollPane1.setViewportView(myJList);
@@ -112,6 +115,6 @@ public class SearchEventsPage extends JPanel {
         searchFilter(searchTxt.getText());
     }
 
-    private JList<String> myJList;
+    JList<String> myJList;
     private JTextField searchTxt;
 }

@@ -1,7 +1,9 @@
 package GUI;
 
+import artist.Artist;
 import event.ActualEvent;
 import event.Event;
+import location.Location;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -13,13 +15,24 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.Date;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class AddEventPage extends JPanel
 {
     JTextField name = new JTextField(10);
     JTextArea description = new JTextArea();
-    FilterJList artists = new FilterJList(MainService.getInstance().getArtists());
-    FilterJList locations = new FilterJList(MainService.getInstance().getLocations());
+    FilterJList artists = new FilterJList<Artist>(MainService.getInstance().getArtists()) {
+        @Override
+        public void getStrings() {
+            this.strings = values.stream().map(artist -> artist.getPseudonym()).collect(Collectors.toList());
+        }
+    };
+    FilterJList locations = new FilterJList<Location>(MainService.getInstance().getLocations()) {
+        @Override
+        public void getStrings() {
+            this.strings = values.stream().map(location -> location.getName() + "  " + location.getAddress()).collect(Collectors.toList());
+        }
+    };
     JTextField url = new JTextField();
     JRadioButton online = new JRadioButton("Online");
     JRadioButton live = new JRadioButton("Live");

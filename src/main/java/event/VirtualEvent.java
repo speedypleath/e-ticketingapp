@@ -1,15 +1,11 @@
 package event;
 
-public class VirtualEvent extends Event
+public final class VirtualEvent extends Event
 {
-    private String inviteLink;
+    private final String inviteLink;
 
     public String getInviteLink() {
         return inviteLink;
-    }
-
-    public void setInviteLink(String inviteLink) {
-        this.inviteLink = inviteLink;
     }
 
     public VirtualEvent(VirtualEvent event) {

@@ -5,7 +5,12 @@ import auth.AuthActions;
 import event.ActualEvent;
 import event.Event;
 import event.VirtualEvent;
+import exceptions.NoRoleException;
 import location.Location;
+import repository.ArtistRepository;
+import repository.EventRepository;
+import repository.LocationRepository;
+import repository.UserRepository;
 import user.Administrator;
 import user.Client;
 import user.Organiser;
@@ -16,8 +21,10 @@ import javax.crypto.spec.PBEKeySpec;
 import java.io.File;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class MainService implements AuthActions {
@@ -26,53 +33,54 @@ public class MainService implements AuthActions {
     private final static Map<Long, Artist> artists;
     private final static Map<String, User> users;
     private final static Map<Long, Location> locations;
+    private final UserRepository userRepository;
+    private final ArtistRepository artistRepository = new ArtistRepository();
+    private final EventRepository eventRepository = new EventRepository();
+    private final LocationRepository locationRepository = new LocationRepository();
     private static Map<Long, Event> events;
     private static MainService instance;
-    private MainService(){}
+
+    private MainService() {
+        userRepository = new UserRepository();
+    }
 
     static {
         Reader reader = Reader.getInstance();
         locations = reader.readLocations();
         artists = reader.readArtists();
         users = reader.readUsers();
-        events = reader.readEvents(artists, users, locations);
+        events = reader.readEventsFromDatabase();
     }
 
-    public static MainService getInstance()
-    {
-        if(instance == null)
+    public static MainService getInstance() {
+        if (instance == null)
             instance = new MainService();
         return instance;
     }
-    public StringBuilder register(String username, String password, String email, String name, String role){
+
+    public StringBuilder register(String username, String password, String email, String name, String role) throws NoRoleException {
         System.out.println("Da");
         String salt = getNewSalt();
         String encryptedPassword = getEncryptedPassword(password, salt);
         StringBuilder result = new StringBuilder();
 
-        if(!Validator.validateName(name)){
-            result.append("Name should start with an uppercase character\n");
-        }
-        if(!Validator.validateEmail(email)) {
+        if(!role.equals("client") && !role.equals("organiser"))
+            throw new NoRoleException();
+
+        if (!Validator.validateEmail(email)) {
             result.append("Email is not valid\n");
         }
-        if(!Validator.validatePassword(password))   {
+        if (!Validator.validatePassword(password)) {
             result.append("Your password must have at least 8 characters long, 1 uppercase & 1 lowercase character, 1 number, 1 special character");
         }
-
-        if(result.length() == 0) {
-            Audit.getInstance().writeAudit("User registered", LocalDateTime.now());
-            User user = switch (role) {
-                case "client" -> new Client(salt, username, encryptedPassword, email, name);
-                case "administrator" -> new Administrator(salt, username, encryptedPassword, email, name);
-                case "organiser" -> new Organiser(salt, username, encryptedPassword, email, name);
-                default -> null;
-            };
-            users.put(username, user);
-            System.out.println(user);
+        try {
+            userRepository.insert(username, name, email, encryptedPassword, salt, role);
         }
-        else
-            System.out.println(result);
+        catch (SQLIntegrityConstraintViolationException e) {
+            result.append("username is taken");
+
+        }
+        Audit.getInstance().writeAudit("User registered", LocalDateTime.now());
         return result;
     }
 
@@ -95,27 +103,28 @@ public class MainService implements AuthActions {
         }
     }
 
-    public String getNewSalt(){
+    public String getNewSalt() {
         try {
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
             byte[] salt = new byte[8];
             random.nextBytes(salt);
             return Base64.getEncoder().encodeToString(salt);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
     }
 
-    public boolean login(String username, String password){
-        User user = users.get(username);
-        if (user == null) {
+    public boolean login(String username, String password) {
+        Optional<User> checkUser = userRepository.getByUsername(username);
+        if (checkUser.isPresent() == false) {
             return false;
         } else {
+            User user = checkUser.get();
+            System.out.println(user);
             String salt = user.getSalt();
             String calculatedHash = getEncryptedPassword(password, salt);
-            if (calculatedHash.equals(user.getPassword())){
+            if (calculatedHash.equals(user.getPassword())) {
                 this.user = user;
                 Audit.getInstance().writeAudit("User logged in", LocalDateTime.now());
                 actions.login(username, password);
@@ -131,16 +140,14 @@ public class MainService implements AuthActions {
         this.actions = nextAction;
     }
 
-    public void logout()
-    {
+    public void logout() {
         this.user = null;
         this.actions.logout();
     }
 
-    public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName, Long id)
-    {
+    public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName, Long id) {
         Event.Builder builder = null;
-        if(type.equals("online"))
+        if (type.equals("online"))
             builder = new VirtualEvent.Builder();
         else
             builder = new ActualEvent.Builder();
@@ -150,43 +157,47 @@ public class MainService implements AuthActions {
                 .date(date)
                 .organiser((Organiser) user);
 
-        if(id != null)
+        if (id != null)
             eventBuilder.id(id);
 
         artists.forEach((aLong, artist) -> {
-            if(artistStrings.contains(artist.getPseudonym()))
+            if (artistStrings.contains(artist.getPseudonym()))
                 eventBuilder.addArtist(artist);
         });
-        if(type.equals("online")) {
+        if (type.equals("online")) {
             VirtualEvent.Builder virtualBuilder = (VirtualEvent.Builder) builder;
             virtualBuilder.inviteLink(locationName);
             VirtualEvent event = virtualBuilder.build();
+            eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), null, locationName, "virtual");
             events.put(event.getId(), event);
-        }
-        else {
+        } else {
             ActualEvent.Builder liveBuilder = (ActualEvent.Builder) builder;
+            AtomicReference<Long> locationId = null;
             locations.forEach((aLong, location) -> {
-                if (location.equals(locationName))
+                if (location.equals(locationName)) {
                     liveBuilder.location(location);
+                    locationId.set(location.getId());
+                }
             });
             ActualEvent event = liveBuilder.build();
+            eventRepository.insert(event.getId(), name, description, (java.sql.Date) date, user.getUsername(), locationId.get(), null, "actual");
             events.put(event.getId(), event);
         }
         Audit.getInstance().writeAudit("Event added", LocalDateTime.now());
     }
 
-    public void addArtist(String name, String pseudonym)
-    {
+    public void addArtist(String name, String pseudonym) {
         Artist artist = new Artist(name, pseudonym);
+        artistRepository.insert(artist.getId(), name, pseudonym);
         artist.addToMap(artists);
         Audit.getInstance().writeAudit("Artist added", LocalDateTime.now());
     }
 
-    public boolean addLocation(String name, String address, String capacity)
-    {
+    public boolean addLocation(String name, String address, String capacity) {
         try {
             Integer c = Integer.parseInt(capacity);
             Location location = new Location(name, address, c);
+            locationRepository.insert(location.getId(), name, address, c);
             locations.put(location.getId(), location);
             Audit.getInstance().writeAudit("Location added", LocalDateTime.now());
         } catch (NumberFormatException nfe) {
@@ -195,70 +206,63 @@ public class MainService implements AuthActions {
         return true;
     }
 
-    public void deleteEvent(Event event)
-    {
+    public void deleteEvent(Event event) {
         events = events.entrySet().stream().filter(
                 longEventEntry -> event != longEventEntry.getValue()
-                ).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        ).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        eventRepository.deleteEvent(event.getId());
         Audit.getInstance().writeAudit("Event deleted", LocalDateTime.now());
     }
 
-    public void editEvent(Event event, String name, String description, Date date, List<String> artistStrings, String type, String locationName)
-    {
+    public void editEvent(Event event, String name, String description, Date date, List<String> artistStrings, String type, String locationName) {
         deleteEvent(event);
         addEvent(name, description, date, artistStrings, type, locationName, event.getId());
         Audit.getInstance().writeAudit("Event edited", LocalDateTime.now());
     }
 
-    public String getUserRole(){
-        if(user == null)
+    public String getUserRole() {
+        if (user == null)
             return "not authenticated";
-        if(user instanceof Administrator)
+        if (user instanceof Administrator)
             return "admin";
-        if(user instanceof Client)
+        if (user instanceof Client)
             return "client";
         return "organiser";
     }
 
-    public Vector<String> getArtists(){
-        Vector<String> artistVector = new Vector<>();
-        artists.forEach(((aLong, artist) -> artistVector.add(artist.getPseudonym())));
-        return artistVector;
+    public Vector<Artist> getArtists() {
+        return artistRepository.selectAll();
     }
 
-    public Vector<String> getLocations(){
-        Vector<String> locationVector = new Vector<>();
-        artists.forEach(((aLong, location) -> locationVector.add(location.getName())));
-        return locationVector;
+    public Vector<Location> getLocations() {
+        return locationRepository.selectAll();
     }
 
-    public Vector<String> getEvents(){
-        Vector<String> eventVector = new Vector<>();
-        events.forEach(((aLong, event) -> eventVector.add(event.getName())));
-        return eventVector;
+    public Vector<Event> getEvents() {
+        return eventRepository.selectAll();
     }
 
-    public void saveData()
-    {
+    public void saveData() {
         Writer writer = Writer.getInstance();
         writer.writeLogsIntoMap(new File("Data/Location.csv"), locations);
         writer.writeLogsIntoMap(new File("Data/Artist.csv"), artists);
         writer.writeLogsIntoMap(new File("Data/User.csv"), users);
         writer.writeLogsIntoMap(new File("Data/Event.csv"), events);
+        writer.writeUsersIntoDatabase(users);
     }
 
     public Vector<String> getUserEvents() {
         Vector<String> eventVector = new Vector<>();
         events.forEach(((aLong, event) -> {
-            if(event.getOrganiser() == user)
+            if (event.getOrganiser().getUsername() == user.getUsername())
                 eventVector.add(event.getName());
         }));
         return eventVector;
     }
 
     public Event getEventByName(String eventName) {
-        System.out.println(eventName);
         return events.entrySet().stream().filter(event -> event.getValue().getName().equals(eventName))
                 .findFirst().orElse(null).getValue();
     }
+
 }

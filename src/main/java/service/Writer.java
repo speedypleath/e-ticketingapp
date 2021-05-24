@@ -1,10 +1,15 @@
 package service;
 
+import repository.UserRepository;
+import user.Administrator;
+import user.Client;
+import user.User;
 import utility.CSV;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -68,5 +73,25 @@ public class Writer
             System.out.println(exception.toString());
             return;
         }
+    }
+
+    public void writeUsersIntoDatabase(Map<String, User> users) {
+        UserRepository userRepository = new UserRepository();
+        users.forEach((s, user) -> {
+            if(!userRepository.getByUsername(user.getUsername()).isPresent()) {
+                String role;
+                if (user instanceof Administrator)
+                    role = "administrator";
+                else if (user instanceof Client)
+                    role = "client";
+                else
+                    role = "organiser";
+                try {
+                    userRepository.insert(user.getUsername(), user.getName(), user.getEmail(), user.getPassword(), user.getSalt(), role);
+                } catch (SQLIntegrityConstraintViolationException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
     }
 }

@@ -4,18 +4,22 @@ import artist.Artist;
 import user.Organiser;
 import utility.CSV;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 //import transaction.Ticket;
 
 public abstract class Event implements CSV
 {
-    private Long id;
-    private Date date;
+    private final Long id;
+    private final Date date;
     private final Set<Artist> artists;
     private final Organiser organiser;
-    private String name;
-    private String description;
+    private final String name;
+    private final String description;
 
     public Long getId() {
         return id;
@@ -25,33 +29,21 @@ public abstract class Event implements CSV
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public Set<Artist> getArtists() {
+        return artists.stream()
+                .map(artist -> new Artist(artist))
+                .collect(Collectors.toSet());
     }
 
-    public void addArtist(Artist artist) { artists.add(artist); }
-
-    public void removeArtist(Artist artist) {artists.remove(artist); }
-
-    public Set<Artist> getArtists() { return artists; }
-
-    public Organiser getOrganiser() { return organiser; }
+    public Organiser getOrganiser() { return new Organiser(organiser); }
 
     @Override
     public String toString() {

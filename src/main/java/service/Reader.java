@@ -5,6 +5,7 @@ import event.ActualEvent;
 import event.Event;
 import event.VirtualEvent;
 import location.Location;
+import repository.EventRepository;
 import user.Administrator;
 import user.Client;
 import user.Organiser;
@@ -124,4 +125,8 @@ public class Reader
         return reader.readLogsIntoMap(new File("Data/Location.csv"));
     }
 
+    public Map<Long, Event> readEventsFromDatabase() {
+        EventRepository eventRepository = new EventRepository();
+        return eventRepository.selectAllAsMap().get();
+    }
 }

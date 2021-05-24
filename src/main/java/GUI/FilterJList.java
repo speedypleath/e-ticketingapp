@@ -10,19 +10,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
-public class FilterJList extends JPanel {
+public abstract class FilterJList<T> extends JPanel {
     DefaultListModel defaultListModel = new DefaultListModel();
-    Vector<String> values;
+    Vector<T> values;
     JList artistList = new JList();
+    List<String> strings;
+    public abstract void getStrings();
 
-    FilterJList(Vector<String> values)
+    FilterJList(Vector<T> values)
     {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setMinimumSize(new Dimension(100,100));
         this.values = values;
         JTextField search = new JTextField(10);
         add(search);
-        this.values.stream().forEach((element) -> defaultListModel.addElement(element));
+        getStrings();
+        this.strings.stream().forEach((element) -> defaultListModel.addElement(element));
         artistList.setModel(defaultListModel);
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane);
@@ -42,10 +45,10 @@ public class FilterJList extends JPanel {
         Comparator<String> comparator = Comparator.comparingDouble(
                 p -> CosineSimilarity.cosineSimilarity(p.toLowerCase(Locale.ROOT), searchTerm.toLowerCase(Locale.ROOT)));
 
-        values.sort(comparator);
-        for(int i=0;i<Math.min(5, values.size());i++) {
-            filteredItems.addElement(values.get(i));
-            System.out.println(values.get(i));
+        strings.sort(comparator);
+        for(int i=0;i<Math.min(5, strings.size());i++) {
+            filteredItems.addElement(strings.get(i));
+            System.out.println(strings.get(i));
         }
         defaultListModel = filteredItems;
         artistList.setModel(defaultListModel);
