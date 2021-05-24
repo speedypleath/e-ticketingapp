@@ -5,10 +5,8 @@ import utility.CosineSimilarity;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
 
 public abstract class FilterJList<T> extends JPanel {
     DefaultListModel defaultListModel = new DefaultListModel();
@@ -54,13 +52,16 @@ public abstract class FilterJList<T> extends JPanel {
         artistList.setModel(defaultListModel);
     }
 
-    public List<String> getSelectedValues()
+    public List<T> getSelectedValues()
     {
-        return artistList.getSelectedValuesList();
+        List<T> selectedValues = new ArrayList<>();
+        for(var i : artistList.getSelectedIndices())
+            selectedValues.add(this.values.get(i));
+        return selectedValues;
     }
 
-    public String getSelectedValue()
-    {
-        return String.valueOf(artistList.getSelectedValuesList().get(0));
+    public T getSelectedValue() {
+        return values.get(artistList.getSelectedIndex());
     }
+
 }

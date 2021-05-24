@@ -12,7 +12,7 @@ import java.util.Vector;
 public abstract class SearchPage <T> extends JPanel{
 
     DefaultListModel defaultListModel;
-    Vector<T> values;
+    List<T> values;
     List strings;
     JPanel cards;
     CardLayout layout;
@@ -27,7 +27,7 @@ public abstract class SearchPage <T> extends JPanel{
         initComponents();
         this.bindData(values);
     }
-    public void bindData(Vector<T> values){
+    public void bindData(List<T> values){
         this.values = values;
         getStrings();
         DefaultListModel defaultListModel = new DefaultListModel();

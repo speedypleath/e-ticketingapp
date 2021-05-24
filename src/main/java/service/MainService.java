@@ -24,7 +24,6 @@ import java.security.spec.KeySpec;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class MainService implements AuthActions {
@@ -145,7 +144,7 @@ public class MainService implements AuthActions {
         this.actions.logout();
     }
 
-    public void addEvent(String name, String description, Date date, List<String> artistStrings, String type, String locationName, Long id) {
+    public void addEvent(String name, String description, Date date, List<Artist> artists, String type, Location location,String inviteLink,  Long id) {
         Event.Builder builder = null;
         if (type.equals("online"))
             builder = new VirtualEvent.Builder();
@@ -157,30 +156,22 @@ public class MainService implements AuthActions {
                 .date(date)
                 .organiser((Organiser) user);
 
+        artists.forEach(artist -> eventBuilder.addArtist(artist));
+
         if (id != null)
             eventBuilder.id(id);
 
-        artists.forEach((aLong, artist) -> {
-            if (artistStrings.contains(artist.getPseudonym()))
-                eventBuilder.addArtist(artist);
-        });
         if (type.equals("online")) {
             VirtualEvent.Builder virtualBuilder = (VirtualEvent.Builder) builder;
-            virtualBuilder.inviteLink(locationName);
+            virtualBuilder.inviteLink(inviteLink);
             VirtualEvent event = virtualBuilder.build();
-            eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), null, locationName, "virtual");
+            eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), null, inviteLink, "virtual");
             events.put(event.getId(), event);
         } else {
             ActualEvent.Builder liveBuilder = (ActualEvent.Builder) builder;
-            AtomicReference<Long> locationId = null;
-            locations.forEach((aLong, location) -> {
-                if (location.equals(locationName)) {
-                    liveBuilder.location(location);
-                    locationId.set(location.getId());
-                }
-            });
+            liveBuilder.location(location);
             ActualEvent event = liveBuilder.build();
-            eventRepository.insert(event.getId(), name, description, (java.sql.Date) date, user.getUsername(), locationId.get(), null, "actual");
+            eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), location.getId(), null, "actual");
             events.put(event.getId(), event);
         }
         Audit.getInstance().writeAudit("Event added", LocalDateTime.now());
@@ -214,9 +205,9 @@ public class MainService implements AuthActions {
         Audit.getInstance().writeAudit("Event deleted", LocalDateTime.now());
     }
 
-    public void editEvent(Event event, String name, String description, Date date, List<String> artistStrings, String type, String locationName) {
+    public void editEvent(Event event, String name, String description, Date date, List<Artist> artists, String type, Location location, String inviteLink) {
         deleteEvent(event);
-        addEvent(name, description, date, artistStrings, type, locationName, event.getId());
+        addEvent(name, description, date, artists, type, location, inviteLink, event.getId());
         Audit.getInstance().writeAudit("Event edited", LocalDateTime.now());
     }
 
@@ -251,13 +242,8 @@ public class MainService implements AuthActions {
         writer.writeUsersIntoDatabase(users);
     }
 
-    public Vector<String> getUserEvents() {
-        Vector<String> eventVector = new Vector<>();
-        events.forEach(((aLong, event) -> {
-            if (event.getOrganiser().getUsername() == user.getUsername())
-                eventVector.add(event.getName());
-        }));
-        return eventVector;
+    public List<Event> getUserEvents() {
+        return eventRepository.selectAll().stream().filter(event -> event.getOrganiser().getUsername().equals(user.getUsername())).collect(Collectors.toList());
     }
 
     public Event getEventByName(String eventName) {
@@ -265,4 +251,23 @@ public class MainService implements AuthActions {
                 .findFirst().orElse(null).getValue();
     }
 
+    public List<Event> getEventsByArtist(Artist artist) {
+        List<Event> eventsList = events.entrySet().stream()
+                .map(event -> event.getValue())
+                .filter(event -> event.getArtists().contains(artist))
+                .collect(Collectors.toList());
+        return eventsList;
+    }
+
+    public List<Event> getEventsByLocation(Location location) {
+        List<Event> eventsList = events.entrySet().stream()
+                .map(event -> event.getValue())
+                .filter(event -> {
+                    if(event instanceof ActualEvent)
+                        return ((ActualEvent) event).getLocation().equals(location);
+                    return false;
+                })
+                .collect(Collectors.toList());
+        return eventsList;
+    }
 }

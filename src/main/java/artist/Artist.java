@@ -3,6 +3,7 @@ package artist;
 import utility.CSV;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class Artist implements CSV
@@ -52,6 +53,19 @@ public final class Artist implements CSV
                 ", name='" + name + '\'' +
                 ", pseudonym='" + pseudonym + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Artist artist = (Artist) o;
+        return artist.getId().equals(this.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, pseudonym);
     }
 
     public String toCSV() {

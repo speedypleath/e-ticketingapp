@@ -2,6 +2,7 @@ package location;
 
 import utility.CSV;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public final class Location implements CSV
@@ -46,6 +47,19 @@ public final class Location implements CSV
 
     public int getCapacity() {
         return capacity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return Objects.equals(id, location.id) && Objects.equals(name, location.name) && Objects.equals(address, location.address) && Objects.equals(capacity, location.capacity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, address, capacity);
     }
 
     @Override

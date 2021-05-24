@@ -131,16 +131,17 @@ public class AddEventPage extends JPanel
         gbc.insets = new Insets(20, 0 ,0 ,0);
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener((actionEvent) -> {
+            Location location = (Location) locations.getSelectedValue();
             if(event == null)
                 MainService.getInstance().addEvent(name.getText(),
                         description.getText(), (Date) datePicker.getModel().getValue(), artists.getSelectedValues(),
                         live.isSelected() ? "live" : "online",
-                        live.isSelected() ? locations.getSelectedValue() : url.getText(), null);
+                        live.isSelected() ? location : null, live.isSelected() ? null: inviteLinkText.getText(), null);
             else{
                 MainService.getInstance().editEvent(event, name.getText(),
                         description.getText(), (Date) datePicker.getModel().getValue(), artists.getSelectedValues(),
                         live.isSelected() ? "live" : "online",
-                        live.isSelected() ? locations.getSelectedValue() : url.getText());
+                        live.isSelected() ? location : null, live.isSelected() ? null: inviteLinkText.getText());
             }
         });
         add(submitButton, gbc);
