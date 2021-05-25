@@ -6,10 +6,10 @@ Proiect PAO
 * Utilizatorii pot cauta un eveniment
 * Organizatorii pot crea un eveniment
 * Organizatorii isi pot edita si sterge evenimentele
+* Organizatorii pot crea bilete pentru evenimente
 * Clientii pot adauga sau sterge bilete din cosul de cumparaturi
 * Clientii pot sa plateasca produsele din cos, caz in care o tranzactie este creata si utilizatorul primeste o chitanta
 * Utilizatorii pot vedea toate evenimentele dintr-o anumite locatie sau toate evenimentele la care participa un anumit artist
-* Clientii pot darui bilete altor clienti
 * Administratorii pot adauga, edita sau sterge artisti, locatii 
 ### Tipuri de obiecte
 * User
@@ -22,5 +22,6 @@ Proiect PAO
 * Location
 * Artist
 * Ticket
+  * SoldTicket
+* TicketType
 * Payment
-* Invoice
