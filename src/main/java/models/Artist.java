@@ -1,4 +1,4 @@
-package artist;
+package models;
 
 import utility.CSV;
 

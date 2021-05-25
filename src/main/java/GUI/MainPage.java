@@ -1,10 +1,10 @@
 package GUI;
 
-import artist.Artist;
+import models.Artist;
 import auth.AuthActions;
 import auth.LoginLogoutChain;
-import event.Event;
-import location.Location;
+import models.Event;
+import models.Location;
 import service.MainService;
 
 import javax.swing.*;
@@ -18,9 +18,10 @@ public class MainPage extends JPanel implements AuthActions {
     private final SearchPage<Event> searchEvents;
     private final SearchPage<Artist> searchArtists;
     private final SearchPage<Location> searchLocations;
-    private final AddEventPage addEvent;
-    private final AddArtistPage addArtist;
-    private final AddLocationPage addLocation;
+    private final EventPage eventPage;
+    private final ArtistPage addArtist;
+    private final LocationPage addLocation;
+    private TicketPage ticketPage;
     MainPage()
     {
         setLayout(new BorderLayout());
@@ -28,16 +29,17 @@ public class MainPage extends JPanel implements AuthActions {
         setLayout(new BorderLayout());
         layout = new CardLayout();
         cards = new JPanel();
-        addEvent = new AddEventPage(layout, cards);
-        addLocation = new AddLocationPage(layout, cards);
-        addArtist = new AddArtistPage(layout, cards);
+        eventPage = new EventPage();
+        addLocation = new LocationPage(layout, cards);
+        addArtist = new ArtistPage(layout, cards);
+        ticketPage = new TicketPage();
         JPanel empty = new JPanel();
         empty.setLayout(new BorderLayout());
         JLabel welcome = new JLabel("<html><div style='text-align: center;'>Welcome</div></html>");
         welcome.setHorizontalAlignment(SwingConstants.CENTER);
         welcome.setVerticalAlignment(SwingConstants.CENTER);
         empty.add(welcome, BorderLayout.CENTER);
-        searchEvents = new SearchPage<Event>(cards, layout, addEvent, MainService.getInstance().getEvents()) {
+        searchEvents = new SearchPage<Event>(cards, layout, eventPage, MainService.getInstance().getEvents()) {
             @Override
             public void getStrings() {
                 this.strings = values.stream().map(event -> event.getName() + "    " + event.getDate().toString()).collect(Collectors.toList());
@@ -45,18 +47,20 @@ public class MainPage extends JPanel implements AuthActions {
 
             @Override
             public void action1() {
-
+                Event value = values.get(myJList.getSelectedIndex());
+                eventPage.viewEvent(value);
+                layout.show(cards, "eventPage");
             }
 
             @Override
             public void action2() {
                 Event value = values.get(myJList.getSelectedIndex());
-                addEventPage.editEvent(value);
-                layout.show(cards, "addEvent");
+                eventPage.editEvent(value);
+                layout.show(cards, "eventPage");
             }
         };
 
-        searchArtists = new SearchPage<Artist>(cards, layout, addEvent, MainService.getInstance().getArtists()) {
+        searchArtists = new SearchPage<Artist>(cards, layout, eventPage, MainService.getInstance().getArtists()) {
             @Override
             public void getStrings() {
                 this.strings = values.stream().map(Artist::getPseudonym).collect(Collectors.toList());
@@ -77,7 +81,7 @@ public class MainPage extends JPanel implements AuthActions {
             }
         };
 
-        searchLocations = new SearchPage<Location>(cards, layout, addEvent, MainService.getInstance().getLocations()) {
+        searchLocations = new SearchPage<Location>(cards, layout, eventPage, MainService.getInstance().getLocations()) {
             @Override
             public void getStrings() {
                 this.strings = values.stream().map(location -> location.getName() + "   " + location.getAddress()).collect(Collectors.toList());
@@ -100,12 +104,13 @@ public class MainPage extends JPanel implements AuthActions {
         cards.setLayout(layout);
         cards.setPreferredSize(new Dimension(800,225));
         cards.add(empty, "empty");
-        cards.add(addEvent, "addEvent");
+        cards.add(eventPage, "eventPage");
         cards.add(addLocation, "addLocation");
         cards.add(addArtist, "addArtist");
         cards.add(searchEvents, "searchEvents");
         cards.add(searchArtists, "searchArtists");
         cards.add(searchLocations, "searchLocations");
+        cards.add(ticketPage, "ticketPage");
         layout.show(cards, "empty");
         add(cards, BorderLayout.CENTER);
         left = new JPanel();
@@ -148,6 +153,7 @@ public class MainPage extends JPanel implements AuthActions {
                 layout.show(cards, "searchEvents");
                 searchEvents.bindData(MainService.getInstance().getEvents());
             });
+            searchEvents.setCurrentAction("first");
             left.add(searchEventButton, gbc);
             gbc.gridy++;
         }
@@ -182,10 +188,22 @@ public class MainPage extends JPanel implements AuthActions {
         }
 
         if (user.equals("organiser")) {
-            JButton addEventButton = new JButton("Add event");
-            addEventButton.setPreferredSize(new Dimension(150, 30));
-            addEventButton.addActionListener((actionEvent) -> layout.show(cards, "addEvent"));
-            left.add(addEventButton, gbc);
+            ticketPage.setEvents();
+            JButton eventPageButton = new JButton("Add event");
+            eventPageButton.setPreferredSize(new Dimension(150, 30));
+            searchEvents.setCurrentAction("second");
+            eventPageButton.addActionListener((actionEvent) -> {
+                layout.show(cards, "eventPage");
+                eventPage.addEvent();
+            });
+            left.add(eventPageButton, gbc);
+            gbc.gridy++;
+            JButton addTicketsButton = new JButton("Add tickets");
+            addTicketsButton.setPreferredSize(new Dimension(150, 30));
+            addTicketsButton.addActionListener((actionEvent) -> {
+                layout.show(cards, "ticketPage");
+            });
+            left.add(addTicketsButton, gbc);
             gbc.gridy++;
         }
 

@@ -82,7 +82,7 @@ public class RegisterPage extends JPanel
                 }
             }
             catch (NoRoleException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
         });
         add(registerButton, gbc);

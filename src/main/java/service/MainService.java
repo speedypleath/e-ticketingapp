@@ -1,17 +1,11 @@
 package service;
 
-import artist.Artist;
+import models.*;
 import auth.AuthActions;
-import event.ActualEvent;
-import event.Event;
-import event.VirtualEvent;
+import exceptions.NoOrganiserException;
 import exceptions.NoRoleException;
-import location.Location;
+import exceptions.NoTypeException;
 import repository.*;
-import user.Administrator;
-import user.Client;
-import user.Organiser;
-import user.User;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -33,8 +27,10 @@ public class MainService implements AuthActions {
     private final ArtistRepository artistRepository = new ArtistRepository();
     private final EventRepository eventRepository = new EventRepository();
     private final LocationRepository locationRepository = new LocationRepository();
+    private final TicketRepository ticketRepository = new TicketRepository();
     private static Map<Long, Event> events;
     private static MainService instance;
+    private final Set<Event> shoppingCart = new HashSet<>();
 
     private MainService() {
         userRepository = new UserRepository();
@@ -94,7 +90,7 @@ public class MainService implements AuthActions {
             byte[] encBytes = f.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(encBytes);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -106,14 +102,14 @@ public class MainService implements AuthActions {
             random.nextBytes(salt);
             return Base64.getEncoder().encodeToString(salt);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
 
     public boolean login(String username, String password) {
         Optional<User> checkUser = userRepository.getByUsername(username);
-        if (checkUser.isPresent() == false) {
+        if (checkUser.isEmpty()) {
             return false;
         } else {
             User user = checkUser.get();
@@ -141,8 +137,10 @@ public class MainService implements AuthActions {
         this.actions.logout();
     }
 
-    public void addEvent(String name, String description, Date date, List<Artist> artists, String type, Location location,String inviteLink,  Long id) {
-        Event.Builder builder = null;
+    public void addEvent(String name, String description, Date date, List<Artist> artists, String type, Location location,String inviteLink,  Long id) throws NoOrganiserException, NoTypeException {
+        Event.Builder builder;
+        if(!(user instanceof Organiser))
+            throw new NoOrganiserException();
         if (type.equals("online"))
             builder = new VirtualEvent.Builder();
         else
@@ -153,7 +151,7 @@ public class MainService implements AuthActions {
                 .date(date)
                 .organiser((Organiser) user);
 
-        artists.forEach(artist -> eventBuilder.addArtist(artist));
+        artists.forEach(eventBuilder::addArtist);
 
         if (id != null)
             eventBuilder.id(id);
@@ -164,13 +162,14 @@ public class MainService implements AuthActions {
             VirtualEvent event = virtualBuilder.build();
             eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), null, inviteLink, "virtual");
             events.put(event.getId(), event);
-        } else {
+        } else if (type.equals("live")){
             ActualEvent.Builder liveBuilder = (ActualEvent.Builder) builder;
             liveBuilder.location(location);
             ActualEvent event = liveBuilder.build();
             eventRepository.insert(event.getId(), name, description, new java.sql.Date(date.getTime()), user.getUsername(), location.getId(), null, "actual");
             events.put(event.getId(), event);
-        }
+        } else
+            throw new NoTypeException();
         Audit.getInstance().writeAudit("Event added", LocalDateTime.now());
     }
 
@@ -197,7 +196,7 @@ public class MainService implements AuthActions {
     public void deleteEvent(Event event) {
         events = events.entrySet().stream().filter(
                 longEventEntry -> event != longEventEntry.getValue()
-        ).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+        ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         eventRepository.deleteEvent(event.getId());
         Audit.getInstance().writeAudit("Event deleted", LocalDateTime.now());
     }
@@ -218,15 +217,15 @@ public class MainService implements AuthActions {
         return "organiser";
     }
 
-    public Vector<Artist> getArtists() {
+    public List<Artist> getArtists() {
         return artistRepository.selectAll();
     }
 
-    public Vector<Location> getLocations() {
+    public List<Location> getLocations() {
         return locationRepository.selectAll();
     }
 
-    public Vector<Event> getEvents() {
+    public List<Event> getEvents() {
         return eventRepository.selectAll();
     }
 
@@ -243,29 +242,20 @@ public class MainService implements AuthActions {
         return eventRepository.selectAll().stream().filter(event -> event.getOrganiser().getUsername().equals(user.getUsername())).collect(Collectors.toList());
     }
 
-    public Event getEventByName(String eventName) {
-        return events.entrySet().stream().filter(event -> event.getValue().getName().equals(eventName))
-                .findFirst().orElse(null).getValue();
-    }
-
     public List<Event> getEventsByArtist(Artist artist) {
-        List<Event> eventsList = events.entrySet().stream()
-                .map(event -> event.getValue())
+        return events.values().stream()
                 .filter(event -> event.getArtists().contains(artist))
                 .collect(Collectors.toList());
-        return eventsList;
     }
 
     public List<Event> getEventsByLocation(Location location) {
-        List<Event> eventsList = events.entrySet().stream()
-                .map(event -> event.getValue())
+        return events.values().stream()
                 .filter(event -> {
                     if(event instanceof ActualEvent)
                         return ((ActualEvent) event).getLocation().equals(location);
                     return false;
                 })
                 .collect(Collectors.toList());
-        return eventsList;
     }
 
     public void deleteArtist(Artist artist) {
@@ -286,5 +276,18 @@ public class MainService implements AuthActions {
     {
         locationRepository.deleteLocation(location.getId());
         locationRepository.insert(location.getId(), name, address, capacity);
+        locationRepository.insert(location.getId(), name, address, capacity);
+    }
+
+    public void addToCart(Event event)
+    {
+        shoppingCart.add(event);
+    }
+
+    public void createTickets(Event event, Integer no, Integer price, String type){
+        TicketType ticketType = new TicketType(price, type, event);
+        ticketRepository.insertType(ticketType);
+        for(int i = 0; i < no; i++)
+            ticketRepository.insert(new Ticket(ticketType));
     }
 }

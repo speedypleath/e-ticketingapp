@@ -1,7 +1,4 @@
-package transaction;
-
-import user.Client;
-import user.User;
+package models;
 
 import java.util.ArrayList;
 import java.util.Date;

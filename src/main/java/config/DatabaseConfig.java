@@ -35,15 +35,4 @@ public class DatabaseConfig {
             throwable.printStackTrace();
         }
     }
-
-    public static void main(String[] args){
-        Connection connection = DatabaseConfig.getDatabaseConnection();
-        SetUpDataUsingStatement statement = new SetUpDataUsingStatement();
-        statement.createUserTable();
-        statement.createLocationTable();
-        statement.createEventTable();
-        statement.createArtistTable();
-        statement.createArtistEventTable();
-        DatabaseConfig.closeDatabaseConnection();
-    }
 }

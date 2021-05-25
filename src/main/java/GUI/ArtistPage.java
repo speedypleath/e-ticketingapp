@@ -1,19 +1,19 @@
 package GUI;
 
-import artist.Artist;
+import models.Artist;
 import service.MainService;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class AddArtistPage extends JPanel {
+public class ArtistPage extends JPanel {
     private final JTextField name;
     private final JTextField pseudonym;
     private final JButton submitButton;
     private final JButton deleteButton;
     private Artist artist;
-    AddArtistPage(CardLayout layout, JPanel cards){
+    ArtistPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Add Artist"));
         GridBagConstraints gbc = new GridBagConstraints();

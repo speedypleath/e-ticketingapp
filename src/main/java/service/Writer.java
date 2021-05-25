@@ -1,9 +1,9 @@
 package service;
 
 import repository.UserRepository;
-import user.Administrator;
-import user.Client;
-import user.User;
+import models.Administrator;
+import models.Client;
+import models.User;
 import utility.CSV;
 
 import java.io.File;

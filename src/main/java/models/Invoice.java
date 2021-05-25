@@ -1,4 +1,4 @@
-package transaction;
+package models;
 
 import java.util.Date;
 

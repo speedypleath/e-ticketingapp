@@ -1,4 +1,4 @@
-package event;
+package models;
 
 public final class VirtualEvent extends Event
 {

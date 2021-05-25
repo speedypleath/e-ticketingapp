@@ -1,15 +1,15 @@
 package service;
 
-import artist.Artist;
-import event.ActualEvent;
-import event.Event;
-import event.VirtualEvent;
-import location.Location;
+import models.Artist;
+import models.ActualEvent;
+import models.Event;
+import models.VirtualEvent;
+import models.Location;
 import repository.EventRepository;
-import user.Administrator;
-import user.Client;
-import user.Organiser;
-import user.User;
+import models.Administrator;
+import models.Client;
+import models.Organiser;
+import models.User;
 import utility.ReaderUtil;
 
 import java.io.File;

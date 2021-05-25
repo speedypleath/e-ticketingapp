@@ -2,10 +2,10 @@ package repository;
 
 import config.DatabaseConfig;
 import exceptions.NoRoleException;
-import user.Administrator;
-import user.Client;
-import user.Organiser;
-import user.User;
+import models.Administrator;
+import models.Client;
+import models.Organiser;
+import models.User;
 
 import java.sql.*;
 import java.util.Optional;

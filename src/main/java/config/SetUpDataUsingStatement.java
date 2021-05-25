@@ -85,7 +85,43 @@ public class SetUpDataUsingStatement {
                 "(artistId bigint not null, " +
                 "eventId bigint not null, " +
                 "PRIMARY KEY (artistId, eventId), " +
-                "FOREIGN KEY (artistId) REFERENCES Artist(artistId), " +
+                "FOREIGN KEY (artistId) REFERENCES Artist(artistId) ON DELETE CASCADE , " +
+                "FOREIGN KEY (eventId) REFERENCES Event(eventId) ON DELETE CASCADE)";
+
+        Connection connection = DatabaseConfig.getDatabaseConnection();
+        try {
+            Statement statement = connection.createStatement();
+            statement.execute(createTableSql);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void createTicketTable() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS Ticket" +
+                "(ticketId bigint not null, " +
+                "typeId bigint not null, " +
+                "clientId varchar(40) null, " +
+                "PRIMARY KEY (ticketId), " +
+                "FOREIGN KEY (clientId) REFERENCES User(username), " +
+                "FOREIGN KEY (typeId) REFERENCES TicketType(typeId))";
+
+        Connection connection = DatabaseConfig.getDatabaseConnection();
+        try {
+            Statement statement = connection.createStatement();
+            statement.execute(createTableSql);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void createTicketTypeTable() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS TicketType" +
+                "(typeId bigint not null,  " +
+                "eventId bigint not null, " +
+                "type varchar(40) not null, " +
+                "price int not null, " +
+                "PRIMARY KEY (typeId), " +
                 "FOREIGN KEY (eventId) REFERENCES Event(eventId))";
 
         Connection connection = DatabaseConfig.getDatabaseConnection();

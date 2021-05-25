@@ -1,6 +1,6 @@
 package repository;
 
-import artist.Artist;
+import models.Artist;
 import config.DatabaseConfig;
 
 import java.sql.Connection;

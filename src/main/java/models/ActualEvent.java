@@ -1,6 +1,4 @@
-package event;
-
-import location.Location;
+package models;
 
 public final class ActualEvent extends Event
 {

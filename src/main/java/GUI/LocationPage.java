@@ -1,20 +1,20 @@
 package GUI;
 
-import location.Location;
+import models.Location;
 import service.MainService;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class AddLocationPage extends JPanel {
+public class LocationPage extends JPanel {
     private final JTextField name;
     private final JTextField address;
     private final JTextField capacity;
     private final JButton submitButton;
     private final JButton deleteButton;
     private Location location;
-    AddLocationPage(CardLayout layout, JPanel cards){
+    LocationPage(CardLayout layout, JPanel cards){
         setLayout(new GridBagLayout());
         setBorder(new TitledBorder("Add Location"));
         GridBagConstraints gbc = new GridBagConstraints();

@@ -1,6 +1,6 @@
-package user;
+package models;
 
-public class Organiser extends User
+public final class Organiser extends User
 {
     public Organiser(Organiser organiser) {super(organiser);}
     public Organiser(String salt, String username, String password, String email, String name) {

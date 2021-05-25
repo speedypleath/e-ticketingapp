@@ -1,10 +1,8 @@
-package user;
-
-import transaction.Ticket;
+package models;
 
 import java.util.Set;
 
-public class Client extends User
+public final class Client extends User
 {
     private Set<Ticket> tickets;
 

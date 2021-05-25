@@ -1,7 +1,5 @@
-package event;
+package models;
 
-import artist.Artist;
-import user.Organiser;
 import utility.CSV;
 
 import java.util.Date;
@@ -10,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-//import transaction.Ticket;
+//import models.Ticket;
 
 public abstract class Event implements CSV
 {

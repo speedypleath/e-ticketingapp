@@ -1,14 +1,14 @@
 package repository;
 
-import artist.Artist;
+import models.Artist;
 import config.DatabaseConfig;
-import event.ActualEvent;
-import event.Event;
-import event.VirtualEvent;
+import models.ActualEvent;
+import models.Event;
+import models.VirtualEvent;
 import exceptions.NoOrganiserException;
-import location.Location;
-import user.Organiser;
-import user.User;
+import models.Location;
+import models.Organiser;
+import models.User;
 
 import java.sql.*;
 import java.sql.Date;

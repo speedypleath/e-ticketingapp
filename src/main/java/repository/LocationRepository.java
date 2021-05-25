@@ -1,7 +1,7 @@
 package repository;
 
 import config.DatabaseConfig;
-import location.Location;
+import models.Location;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -65,7 +65,7 @@ public class LocationRepository
             PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
             ResultSet resultSet = preparedStatement.executeQuery();
             Optional<Location> location = mapToLocation(resultSet);
-            while(!location.isEmpty())
+            while(location.isPresent())
             {
                 locations.add(location.get());
                 location = mapToLocation(resultSet);

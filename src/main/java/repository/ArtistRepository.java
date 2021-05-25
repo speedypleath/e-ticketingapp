@@ -1,14 +1,15 @@
 package repository;
 
-import artist.Artist;
 import config.DatabaseConfig;
+import models.Artist;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Vector;
 
 import static repository.GenericStatements.mapToArtist;
 
@@ -46,10 +47,10 @@ public class ArtistRepository {
         GenericStatements.delete(id, "Artist");
     }
 
-    public Vector<Artist> selectAll() {
+    public List<Artist> selectAll() {
         String selectSql = "SELECT * FROM Artist";
         Connection connection = DatabaseConfig.getDatabaseConnection();
-        Vector<Artist> artists = new Vector<>();
+        List<Artist> artists = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
             ResultSet resultSet = preparedStatement.executeQuery();

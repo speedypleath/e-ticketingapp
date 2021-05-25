@@ -7,7 +7,6 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 public abstract class SearchPage <T> extends JPanel{
 
@@ -16,15 +15,15 @@ public abstract class SearchPage <T> extends JPanel{
     List strings;
     private JPanel cards;
     private CardLayout layout;
-    AddEventPage addEventPage;
+    EventPage eventPage;
     private String currentAction = "first";
 
     public abstract void getStrings();
 
-    public SearchPage(JPanel cards, CardLayout layout, AddEventPage addEvent, Vector<T> values) {
+    public SearchPage(JPanel cards, CardLayout layout, EventPage addEvent, List<T> values) {
         this.cards = cards;
         this.layout = layout;
-        addEventPage = addEvent;
+        eventPage = addEvent;
         initComponents();
         this.bindData(values);
     }
@@ -69,7 +68,6 @@ public abstract class SearchPage <T> extends JPanel{
         myJList = new JList<>();
         searchTxt = new JTextField();
         JLabel searchLabel = new JLabel();
-        JButton cartButton = new JButton("Buy");
 
         myJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         myJList.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -104,9 +102,7 @@ public abstract class SearchPage <T> extends JPanel{
                                                 .addGap(18, 18, 18)
                                                 .addComponent(searchTxt, GroupLayout.PREFERRED_SIZE, 500, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 500, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(cartButton, GroupLayout.PREFERRED_SIZE, 495, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(90, Short.MAX_VALUE))
-        );
+                                )));
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
@@ -116,9 +112,7 @@ public abstract class SearchPage <T> extends JPanel{
                                         .addComponent(searchLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
-                                .addComponent(cartButton, GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                                .addContainerGap())
-        );
+        ));
 
     }
 

@@ -9,13 +9,13 @@ import java.util.*;
 import java.util.List;
 
 public abstract class FilterJList<T> extends JPanel {
-    DefaultListModel defaultListModel = new DefaultListModel();
-    Vector<T> values;
-    JList artistList = new JList();
+    DefaultListModel<String> defaultListModel = new DefaultListModel();
+    List<T> values;
+    JList<String> artistList = new JList();
     List<String> strings;
     public abstract void getStrings();
 
-    FilterJList(Vector<T> values)
+    FilterJList(List<T> values)
     {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setMinimumSize(new Dimension(100,100));
@@ -23,7 +23,7 @@ public abstract class FilterJList<T> extends JPanel {
         JTextField search = new JTextField(10);
         add(search);
         getStrings();
-        this.strings.stream().forEach((element) -> defaultListModel.addElement(element));
+        this.strings.forEach((element) -> defaultListModel.addElement(element));
         artistList.setModel(defaultListModel);
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane);
@@ -34,6 +34,13 @@ public abstract class FilterJList<T> extends JPanel {
                 searchFilter(search.getText());
             }
         });
+    }
+
+    public void bindData(List<T> values){
+        this.values = values;
+        getStrings();
+        this.strings.forEach((element) -> defaultListModel.addElement(element));
+        artistList.setModel(defaultListModel);
     }
 
     private void searchFilter(String searchTerm) {
