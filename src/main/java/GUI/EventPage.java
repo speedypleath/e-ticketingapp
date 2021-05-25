@@ -1,12 +1,9 @@
 package GUI;
 
-import models.Artist;
-import models.ActualEvent;
-import models.Event;
-import models.VirtualEvent;
 import exceptions.NoOrganiserException;
 import exceptions.NoTypeException;
-import models.Location;
+import models.Event;
+import models.*;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -16,6 +13,7 @@ import utility.DateLabelFormatter;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -35,6 +33,12 @@ public class EventPage extends JPanel {
             this.strings = values.stream().map(location -> location.getName() + "  " + location.getAddress()).collect(Collectors.toList());
         }
     };
+    FilterJList<TicketType> tickets = new FilterJList<TicketType>(new ArrayList<>()) {
+        @Override
+        public void getStrings() {
+            this.strings = values.stream().map(type -> type.getType() + "  " + type.getPrice()).collect(Collectors.toList());
+        }
+    };
     JTextField url = new JTextField();
     JTextField actualDate = new JTextField();
     JTextField actualArtists = new JTextField();
@@ -48,9 +52,9 @@ public class EventPage extends JPanel {
     JButton removeFromCart;
     JLabel inviteLinkText;
     JLabel locationText;
+    JLabel ticketsText = new JLabel("Tickets");
     JLabel typeText = new JLabel("Type:");
     Event event;
-
 
     EventPage() {
         setLayout(new GridBagLayout());
@@ -74,6 +78,8 @@ public class EventPage extends JPanel {
         inviteLinkText = new JLabel("Invite link:");
         add(inviteLinkText, gbc);
         inviteLinkText.setVisible(false);
+        gbc.gridy++;
+        add(ticketsText, gbc);
 
         gbc.gridx++;
         gbc.gridy = 0;
@@ -125,6 +131,8 @@ public class EventPage extends JPanel {
         gbc.weightx = 1;
         add(locations, gbc);
         add(url, gbc);
+        gbc.gridy++;
+        add(tickets, gbc);
         url.setVisible(false);
 
         live.addActionListener((e -> {
@@ -168,6 +176,9 @@ public class EventPage extends JPanel {
         });
         add(submitButton, gbc);
         addToCart = new JButton("Add to cart");
+        addToCart.addActionListener((actionEvent) -> {
+            MainService.getInstance().addToCart(tickets.getSelectedValue());
+        });
         add(addToCart, gbc);
         removeFromCart = new JButton("Remove from cart");
         add(removeFromCart, gbc);
@@ -227,6 +238,8 @@ public class EventPage extends JPanel {
     }
 
     private void setForm(){
+        ticketsText.setVisible(false);
+        tickets.setVisible(false);
         name.setEditable(true);
         name.setBorder(UIManager.getLookAndFeel().getDefaults().getBorder("TextField.border"));
         description.setEditable(true);
@@ -257,6 +270,7 @@ public class EventPage extends JPanel {
         description.setEditable(false);
         description.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         description.setOpaque(false);
+        ticketsText.setVisible(true);
         url.setEditable(false);
         url.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         deleteButton.setVisible(false);
@@ -283,6 +297,8 @@ public class EventPage extends JPanel {
             locationText.setVisible(true);
             inviteLinkText.setVisible(false);
         }
+        tickets.setVisible(true);
+        tickets.bindData(MainService.getInstance().getAvailableTickets(event));
         addToCart.setVisible(true);
     }
 }

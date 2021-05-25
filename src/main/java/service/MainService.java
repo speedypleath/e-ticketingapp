@@ -30,7 +30,7 @@ public class MainService implements AuthActions {
     private final TicketRepository ticketRepository = new TicketRepository();
     private static Map<Long, Event> events;
     private static MainService instance;
-    private final Set<Event> shoppingCart = new HashSet<>();
+    private final List<Ticket> shoppingCart = new ArrayList<>();
 
     private MainService() {
         userRepository = new UserRepository();
@@ -279,15 +279,49 @@ public class MainService implements AuthActions {
         locationRepository.insert(location.getId(), name, address, capacity);
     }
 
-    public void addToCart(Event event)
+    public void addToCart(TicketType type)
     {
-        shoppingCart.add(event);
+        System.out.println(type.getId() + type.getType());
+        Ticket ticket = ticketRepository.selectTicketByType(type.getId()).get();
+        shoppingCart.add(ticket);
+        shoppingCart.forEach(System.out::println);
     }
 
     public void createTickets(Event event, Integer no, Integer price, String type){
-        TicketType ticketType = new TicketType(price, type, event);
-        ticketRepository.insertType(ticketType);
+        TicketType ticketType;
+        Optional<TicketType> optional = ticketRepository.selectType(event.getId(), type, price);
+        if(optional.isPresent())
+            ticketType = optional.get();
+        else {
+            ticketType = new TicketType(price, type, event);
+            ticketRepository.insertType(ticketType);
+        }
         for(int i = 0; i < no; i++)
             ticketRepository.insert(new Ticket(ticketType));
+        Audit.getInstance().writeAudit("Tickets created", LocalDateTime.now());
+    }
+
+    public List<TicketType> getAvailableTickets(Event event) {
+        return ticketRepository.selectAvailableTypes(event.getId());
+    }
+
+    public void removeFromCart(Ticket ticket) {
+        shoppingCart.remove(ticket);
+        shoppingCart.forEach(ticket1 -> System.out.println(ticket1.getType().getType()));
+    }
+
+    public Event getEventById(Long id) {
+        return eventRepository.getById(id).get();
+    }
+
+    public List<Ticket> getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void pay() {
+        Payment payment = new Payment((Client) user);
+        ticketRepository.insertPayment(payment);
+        for(Ticket ticket : shoppingCart)
+            ticketRepository.updateTicketPayment(ticket.getId(), payment.getId());
     }
 }

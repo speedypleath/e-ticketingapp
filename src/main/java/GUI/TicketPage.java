@@ -69,4 +69,5 @@ public class TicketPage extends JPanel{
     public void setEvents(){
         events.bindData(MainService.getInstance().getUserEvents());
     }
+
 }

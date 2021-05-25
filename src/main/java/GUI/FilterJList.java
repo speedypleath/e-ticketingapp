@@ -39,6 +39,7 @@ public abstract class FilterJList<T> extends JPanel {
     public void bindData(List<T> values){
         this.values = values;
         getStrings();
+        defaultListModel = new DefaultListModel<>();
         this.strings.forEach((element) -> defaultListModel.addElement(element));
         artistList.setModel(defaultListModel);
     }

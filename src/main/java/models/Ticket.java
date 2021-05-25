@@ -7,6 +7,11 @@ public class Ticket
     private final Long id;
     private final TicketType type;
 
+    public Ticket(Long id, TicketType ticketType){
+        this.id = id;
+        this.type = new TicketType(ticketType);
+    }
+
     public Ticket(TicketType ticketType){
         this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
         this.type = new TicketType(ticketType);

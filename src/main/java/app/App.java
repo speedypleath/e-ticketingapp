@@ -12,6 +12,7 @@ public class App
         statement.createEventTable();
         statement.createArtistTable();
         statement.createArtistEventTable();
+        statement.createPaymentTable();
         statement.createTicketTypeTable();
         statement.createTicketTable();
         GUI.getInstance();

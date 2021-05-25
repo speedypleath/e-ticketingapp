@@ -22,7 +22,7 @@ public final class TicketType
 
 
     public TicketType(Long id, Event event, String type, Integer price) {
-        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+        this.id = id;
         this.price = price;
         this.type = type;
         if(event instanceof VirtualEvent)

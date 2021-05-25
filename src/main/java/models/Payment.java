@@ -1,39 +1,39 @@
 package models;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 public final class Payment
 {
-    final private Invoice invoice;
-    final private Boolean refundable;
-    final private List<Ticket> tickets;
+    final private Long id;
     final private Client client;
+    final private Date date;
 
-    public Payment(List<Ticket> tickets, Client client, Boolean refundable)
+    public Payment(Client client)
     {
-        this.invoice = new Invoice(new Date());
-        this.refundable = refundable;
-        this.tickets = new ArrayList<>();
-        for(var ticket : tickets)
-            this.tickets.add(new Ticket(ticket));
+        this.id = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
         this.client = new Client(client);
+        this.date = new Date();
     }
 
-    public Invoice getInvoice() {
-        return invoice;
+    public Payment(Long id, Client client, Date date)
+    {
+        this.id = id;
+        this.client = new Client(client);
+        this.date = date;
     }
 
-    public Boolean getRefundable() {
-        return refundable;
+    public Payment(Payment payment){
+        this.id = payment.getId();
+        this.client = new Client((Client) payment.getClient());
+        this.date = payment.getDate();
     }
 
-    public List<Ticket> getTickets() {
-        return tickets;
-    }
+    public Long getId() { return  id; }
 
     public User getClient() {
         return client;
     }
+
+    public Date getDate() { return date; }
 }

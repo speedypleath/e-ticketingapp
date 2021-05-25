@@ -1,14 +1,16 @@
 package GUI;
 
-import models.Artist;
 import auth.AuthActions;
 import auth.LoginLogoutChain;
+import models.Artist;
 import models.Event;
 import models.Location;
+import models.Ticket;
 import service.MainService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class MainPage extends JPanel implements AuthActions {
@@ -18,9 +20,12 @@ public class MainPage extends JPanel implements AuthActions {
     private final SearchPage<Event> searchEvents;
     private final SearchPage<Artist> searchArtists;
     private final SearchPage<Location> searchLocations;
+    private final SearchPage<Ticket> shoppingCart;
     private final EventPage eventPage;
     private final ArtistPage addArtist;
     private final LocationPage addLocation;
+    private final TicketView ticketView;
+    private final JButton buy;
     private TicketPage ticketPage;
     MainPage()
     {
@@ -33,6 +38,7 @@ public class MainPage extends JPanel implements AuthActions {
         addLocation = new LocationPage(layout, cards);
         addArtist = new ArtistPage(layout, cards);
         ticketPage = new TicketPage();
+        ticketView = new TicketView();
         JPanel empty = new JPanel();
         empty.setLayout(new BorderLayout());
         JLabel welcome = new JLabel("<html><div style='text-align: center;'>Welcome</div></html>");
@@ -101,6 +107,40 @@ public class MainPage extends JPanel implements AuthActions {
                 layout.show(cards, "addLocation");
             }
         };
+
+        shoppingCart = new SearchPage<Ticket>(cards, layout, eventPage, new ArrayList<>()) {
+            @Override
+            public void getStrings() {
+                this.strings = values.stream().map(ticket ->
+                        MainService.getInstance().getEventById(ticket.getType().getEvent().getId()).getName()
+                                + "   "  + ticket.getType().getType()).collect(Collectors.toList());
+            }
+
+            @Override
+            public void action1() {
+                Ticket value = values.get(myJList.getSelectedIndex());
+                layout.show(cards, "ticketView");
+                ticketView.setTicket(value);
+            }
+
+            @Override
+            public void action2() {
+            }
+        };
+
+        JPanel shoppingCartWrap = new JPanel();
+        shoppingCartWrap.setLayout(new BoxLayout(shoppingCartWrap, BoxLayout.PAGE_AXIS));
+        JPanel panel1 = new JPanel(new BorderLayout());
+        shoppingCart.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel1.add(shoppingCart);
+        shoppingCartWrap.add(panel1);
+        JPanel panel2 = new JPanel(new BorderLayout());
+        buy = new JButton("Buy");
+        buy.addActionListener(e -> MainService.getInstance().pay());
+        buy.setAlignmentX(0.5F);
+        panel2.add(buy);
+        shoppingCartWrap.add(panel2);
+
         cards.setLayout(layout);
         cards.setPreferredSize(new Dimension(800,225));
         cards.add(empty, "empty");
@@ -111,6 +151,8 @@ public class MainPage extends JPanel implements AuthActions {
         cards.add(searchArtists, "searchArtists");
         cards.add(searchLocations, "searchLocations");
         cards.add(ticketPage, "ticketPage");
+        cards.add(ticketView, "ticketView");
+        cards.add(shoppingCartWrap, "shoppingCart");
         layout.show(cards, "empty");
         add(cards, BorderLayout.CENTER);
         left = new JPanel();
@@ -155,6 +197,16 @@ public class MainPage extends JPanel implements AuthActions {
             });
             searchEvents.setCurrentAction("first");
             left.add(searchEventButton, gbc);
+            gbc.gridy++;
+
+            JButton shoppingCartButton = new JButton("Shopping cart");
+            shoppingCartButton.setPreferredSize(new Dimension(150, 30));
+            shoppingCartButton.addActionListener((actionEvent) -> {
+                layout.show(cards, "shoppingCart");
+                shoppingCart.bindData(MainService.getInstance().getShoppingCart());
+            });
+            searchEvents.setCurrentAction("first");
+            left.add(shoppingCartButton, gbc);
             gbc.gridy++;
         }
 

@@ -101,9 +101,9 @@ public class SetUpDataUsingStatement {
         String createTableSql = "CREATE TABLE IF NOT EXISTS Ticket" +
                 "(ticketId bigint not null, " +
                 "typeId bigint not null, " +
-                "clientId varchar(40) null, " +
+                "paymentId bigint null, " +
                 "PRIMARY KEY (ticketId), " +
-                "FOREIGN KEY (clientId) REFERENCES User(username), " +
+                "FOREIGN KEY (paymentId) REFERENCES Payment(paymentId), " +
                 "FOREIGN KEY (typeId) REFERENCES TicketType(typeId))";
 
         Connection connection = DatabaseConfig.getDatabaseConnection();
@@ -123,6 +123,23 @@ public class SetUpDataUsingStatement {
                 "price int not null, " +
                 "PRIMARY KEY (typeId), " +
                 "FOREIGN KEY (eventId) REFERENCES Event(eventId))";
+
+        Connection connection = DatabaseConfig.getDatabaseConnection();
+        try {
+            Statement statement = connection.createStatement();
+            statement.execute(createTableSql);
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void createPaymentTable() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS Payment" +
+                "(paymentId bigint not null,  " +
+                "date date not null, " +
+                "clientId varchar(40) not null, " +
+                "PRIMARY KEY (paymentId), " +
+                "FOREIGN KEY (clientId) REFERENCES User(username))";
 
         Connection connection = DatabaseConfig.getDatabaseConnection();
         try {
